@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp -r temp_vite/alugfacil/* .)",
+      "Bash(cp temp_vite/alugfacil/.gitignore .)",
+      "Bash(cp temp_vite/alugfacil/.eslintrc.cjs .)",
+      "Bash(rm -rf temp_vite)",
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run:*)",
+      "Bash(node:*)"
+    ]
+  }
+}
