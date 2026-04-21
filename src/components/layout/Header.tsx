@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, ChevronDown } from "lucide-react";
 import Container from "../ui/Container";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../data/consultories";
+import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
   { to: "/", label: "Início" },
@@ -12,9 +12,33 @@ const navLinks = [
   { to: "/contato", label: "Contato" },
 ];
 
+const DASHBOARD_BY_ROLE = {
+  tenant: "/dashboard/locatario",
+  owner: "/dashboard/proprietario",
+  admin: "/dashboard/admin",
+};
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser, isLoggedIn, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setUserMenuOpen(false);
+    navigate("/");
+  };
+
+  const dashboardPath = currentUser ? DASHBOARD_BY_ROLE[currentUser.role] : "/entrar";
+
+  const initials = currentUser?.name
+    .split(" ")
+    .slice(0, 2)
+    .map(n => n[0])
+    .join("")
+    .toUpperCase() ?? "";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-neutral-100">
@@ -42,19 +66,72 @@ export default function Header() {
           ))}
         </nav>
 
+        {/* Desktop auth area */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href={buildWhatsAppLink(
-              WHATSAPP_DEFAULT,
-              "Olá! Vim pelo site AlugFácil e gostaria de mais informações."
-            )}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-primary-500 text-white px-4 py-2 rounded-xl text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
-          >
-            <Phone size={16} />
-            Fale conosco
-          </a>
+          {isLoggedIn && currentUser ? (
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(v => !v)}
+                className="flex items-center gap-2 border border-neutral-200 rounded-xl px-3 py-2 hover:bg-neutral-50 transition-colors"
+              >
+                <div className="w-7 h-7 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-display font-bold text-xs">
+                  {initials}
+                </div>
+                <span className="text-sm font-medium text-neutral-700 max-w-30 truncate">
+                  {currentUser.name.split(" ")[0]}
+                </span>
+                <ChevronDown size={14} className={`text-neutral-400 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 4 }}
+                    className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-[0_12px_48px_rgba(0,102,204,0.15)] border border-neutral-100 overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b border-neutral-100">
+                      <p className="text-xs font-medium text-neutral-800 truncate">{currentUser.name}</p>
+                      <p className="text-xs text-neutral-400">{currentUser.email}</p>
+                    </div>
+                    <div className="p-1">
+                      <Link
+                        to={dashboardPath}
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 rounded-lg transition-colors"
+                      >
+                        <LayoutDashboard size={15} className="text-neutral-400" />
+                        Meu painel
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <LogOut size={15} />
+                        Sair
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/entrar"
+                className="text-sm font-medium text-neutral-600 hover:text-primary-500 transition-colors"
+              >
+                Entrar
+              </Link>
+              <Link
+                to="/cadastro"
+                className="inline-flex items-center gap-2 bg-primary-500 text-white px-4 py-2 rounded-xl text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
+              >
+                Criar conta
+              </Link>
+            </>
+          )}
         </div>
 
         <button
@@ -66,6 +143,7 @@ export default function Header() {
         </button>
       </Container>
 
+      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -89,18 +167,44 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              <a
-                href={buildWhatsAppLink(
-                  WHATSAPP_DEFAULT,
-                  "Olá! Vim pelo site AlugFácil e gostaria de mais informações."
+              <div className="border-t border-neutral-100 pt-4 flex flex-col gap-2">
+                {isLoggedIn && currentUser ? (
+                  <>
+                    <Link
+                      to={dashboardPath}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 border border-neutral-200 text-neutral-700 px-4 py-3 rounded-xl text-sm font-medium"
+                    >
+                      <LayoutDashboard size={16} />
+                      Meu painel
+                    </Link>
+                    <button
+                      onClick={() => { handleLogout(); setMenuOpen(false); }}
+                      className="flex items-center gap-2 text-red-500 px-4 py-3 rounded-xl text-sm font-medium"
+                    >
+                      <LogOut size={16} />
+                      Sair
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/entrar"
+                      onClick={() => setMenuOpen(false)}
+                      className="border border-neutral-200 text-neutral-700 px-4 py-3 rounded-xl text-sm font-medium text-center"
+                    >
+                      Entrar
+                    </Link>
+                    <Link
+                      to="/cadastro"
+                      onClick={() => setMenuOpen(false)}
+                      className="bg-primary-500 text-white px-4 py-3 rounded-xl text-sm font-display font-semibold text-center"
+                    >
+                      Criar conta
+                    </Link>
+                  </>
                 )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 bg-primary-500 text-white px-4 py-3 rounded-xl text-sm font-display font-semibold"
-              >
-                <Phone size={16} />
-                Fale conosco
-              </a>
+              </div>
             </Container>
           </motion.div>
         )}

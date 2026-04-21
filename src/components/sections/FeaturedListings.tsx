@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin, ArrowRight, Star, Zap } from "lucide-react";
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
 import Card from "../ui/Card";
@@ -31,18 +31,30 @@ export default function FeaturedListings() {
             <motion.div key={consultory.id} variants={fadeInUp}>
               <Link to={`/consultorios/${consultory.id}`}>
                 <Card>
-                  <div className="aspect-[4/3] overflow-hidden">
+                  <div className="aspect-4/3 overflow-hidden relative">
                     <img
                       src={consultory.images[0]}
                       alt={consultory.name}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     />
+                    {consultory.isPremium && (
+                      <div className="absolute top-3 left-3 flex items-center gap-1 bg-accent-400 text-neutral-900 text-xs font-display font-bold px-2.5 py-1 rounded-full">
+                        <Zap size={11} />
+                        Destaque
+                      </div>
+                    )}
                   </div>
                   <div className="p-6">
-                    <h3 className="font-display font-bold text-lg text-neutral-800 mb-2">
-                      {consultory.name}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-display font-bold text-lg text-neutral-800 leading-snug">
+                        {consultory.name}
+                      </h3>
+                      <div className="flex items-center gap-1 text-xs text-neutral-500 shrink-0">
+                        <Star size={12} className="text-accent-400 fill-accent-400" />
+                        {consultory.rating}
+                      </div>
+                    </div>
                     <div className="flex items-center gap-1 text-neutral-500 text-sm mb-4">
                       <MapPin size={14} />
                       {consultory.neighborhood}, {consultory.city}

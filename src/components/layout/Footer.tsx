@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="bg-neutral-900 text-neutral-300 py-16">
       <Container>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
               <span className="text-2xl">🦷</span>
@@ -33,27 +33,46 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/consultorios"
-                  className="hover:text-white transition-colors"
-                >
+                <Link to="/consultorios" className="hover:text-white transition-colors">
                   Consultórios
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/cadastrar"
-                  className="hover:text-white transition-colors"
-                >
+                <Link to="/cadastrar" className="hover:text-white transition-colors">
                   Cadastrar Consultório
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/contato"
-                  className="hover:text-white transition-colors"
-                >
+                <Link to="/contato" className="hover:text-white transition-colors">
                   Contato
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-display font-semibold text-white mb-4">
+              Conta
+            </h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/entrar" className="hover:text-white transition-colors">
+                  Entrar
+                </Link>
+              </li>
+              <li>
+                <Link to="/cadastro" className="hover:text-white transition-colors">
+                  Criar conta
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard/locatario" className="hover:text-white transition-colors">
+                  Painel do Dentista
+                </Link>
+              </li>
+              <li>
+                <Link to="/dashboard/proprietario" className="hover:text-white transition-colors">
+                  Painel do Proprietário
                 </Link>
               </li>
             </ul>

@@ -9,6 +9,15 @@ export interface Consultory {
   images: string[];
   whatsappNumber: string;
   featured: boolean;
+  ownerId: string;
+  rating: number;
+  totalReviews: number;
+  isPremium?: boolean;
+  periods: {
+    morning: boolean;
+    afternoon: boolean;
+    evening: boolean;
+  };
 }
 
 export const consultories: Consultory[] = [
@@ -37,6 +46,11 @@ export const consultories: Consultory[] = [
     ],
     whatsappNumber: "5512999999999",
     featured: true,
+    ownerId: "owner-1",
+    rating: 4.9,
+    totalReviews: 38,
+    isPremium: true,
+    periods: { morning: true, afternoon: true, evening: false },
   },
   {
     id: "vila-adyana",
@@ -61,6 +75,10 @@ export const consultories: Consultory[] = [
     ],
     whatsappNumber: "5512999999999",
     featured: true,
+    ownerId: "owner-2",
+    rating: 4.7,
+    totalReviews: 21,
+    periods: { morning: false, afternoon: true, evening: true },
   },
   {
     id: "centro-sjc",
@@ -83,6 +101,10 @@ export const consultories: Consultory[] = [
     ],
     whatsappNumber: "5512999999999",
     featured: true,
+    ownerId: "owner-1",
+    rating: 4.5,
+    totalReviews: 14,
+    periods: { morning: true, afternoon: true, evening: true },
   },
   {
     id: "jardim-satelite",
@@ -105,6 +127,10 @@ export const consultories: Consultory[] = [
     ],
     whatsappNumber: "5512999999999",
     featured: false,
+    ownerId: "owner-3",
+    rating: 4.3,
+    totalReviews: 9,
+    periods: { morning: true, afternoon: false, evening: false },
   },
   {
     id: "parque-residencial",
@@ -132,6 +158,11 @@ export const consultories: Consultory[] = [
     ],
     whatsappNumber: "5512999999999",
     featured: true,
+    ownerId: "owner-2",
+    rating: 5.0,
+    totalReviews: 52,
+    isPremium: true,
+    periods: { morning: true, afternoon: true, evening: false },
   },
   {
     id: "urbanova",
@@ -156,6 +187,10 @@ export const consultories: Consultory[] = [
     ],
     whatsappNumber: "5512999999999",
     featured: false,
+    ownerId: "owner-3",
+    rating: 4.6,
+    totalReviews: 17,
+    periods: { morning: false, afternoon: true, evening: true },
   },
 ];
 
