@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { MessageCircle, AtSign, Mail, Send } from "lucide-react";
 import Container from "../components/ui/Container";
 import Button from "../components/ui/Button";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../data/consultories";
+import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../config/contact";
 import { fadeInUp, staggerContainer, viewportConfig } from "../hooks/useScrollReveal";
 
 const contactChannels = [

@@ -193,8 +193,3 @@ export const consultories: Consultory[] = [
     periods: { morning: false, afternoon: true, evening: true },
   },
 ];
-
-export const buildWhatsAppLink = (phone: string, message: string): string =>
-  `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-
-export const WHATSAPP_DEFAULT = "5512999999999";

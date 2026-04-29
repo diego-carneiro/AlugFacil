@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { MapPin, ArrowRight, Star, Zap } from "lucide-react";
@@ -6,11 +7,31 @@ import SectionTitle from "../ui/SectionTitle";
 import Card from "../ui/Card";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
-import { consultories } from "../../data/consultories";
+import {
+  listFeaturedConsultories,
+} from "../../lib/api/consultories";
+import type { Consultory } from "../../data/consultories";
 import { staggerContainer, fadeInUp, viewportConfig } from "../../hooks/useScrollReveal";
 
 export default function FeaturedListings() {
-  const featured = consultories.filter((c) => c.featured).slice(0, 3);
+  const [featured, setFeatured] = useState<Consultory[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadConsultories() {
+      const items = await listFeaturedConsultories();
+      if (!cancelled) {
+        setFeatured(items);
+      }
+    }
+
+    void loadConsultories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="py-20 lg:py-30">

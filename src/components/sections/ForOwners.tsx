@@ -2,7 +2,7 @@ import { motion } from "motion/react";
 import { ArrowRight, TrendingUp, Shield, Clock } from "lucide-react";
 import Container from "../ui/Container";
 import Button from "../ui/Button";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../data/consultories";
+import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../config/contact";
 import { fadeInUp, staggerContainer, viewportConfig } from "../../hooks/useScrollReveal";
 
 const benefits = [

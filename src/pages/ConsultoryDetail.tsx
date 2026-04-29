@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import {
@@ -19,7 +19,8 @@ import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import BookingModal from "../components/modals/BookingModal";
 import StarRating from "../components/ui/StarRating";
-import { consultories } from "../data/consultories";
+import { consultories as mockConsultories, type Consultory } from "../data/consultories";
+import { getConsultoryById } from "../lib/api/consultories";
 import { reviews } from "../data/reviews";
 
 const periodIcons = {
@@ -35,9 +36,46 @@ const periodLabels = {
 
 export default function ConsultoryDetail() {
   const { id } = useParams<{ id: string }>();
-  const consultory = consultories.find((c) => c.id === id);
+  const [consultory, setConsultory] = useState<Consultory | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadConsultory() {
+      if (!id) {
+        setConsultory(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const item = await getConsultoryById(id);
+      if (!cancelled) {
+        setConsultory(item);
+        setIsLoading(false);
+      }
+    }
+
+    void loadConsultory();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <section className="pt-28 pb-20">
+        <Container className="text-center">
+          <h1 className="text-2xl font-bold text-neutral-800 mb-4">
+            Carregando consultório...
+          </h1>
+        </Container>
+      </section>
+    );
+  }
 
   if (!consultory) {
     return (
@@ -54,7 +92,7 @@ export default function ConsultoryDetail() {
     );
   }
 
-  const others = consultories.filter((c) => c.id !== consultory.id).slice(0, 3);
+  const others = mockConsultories.filter((c) => c.id !== consultory.id).slice(0, 3);
   const consultoryReviews = reviews.filter(r => r.type === "tenant-to-owner");
 
   const nextImage = () =>

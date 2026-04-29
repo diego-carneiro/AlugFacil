@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Stethoscope, Building2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import type { UserRole } from "../../data/users";
+import type { UserRole } from "../../types/user";
 
 type Step = 1 | 2 | 3;
 
@@ -36,10 +36,12 @@ const STEP_LABELS: Record<Step, string> = {
 };
 
 export default function Register() {
-  const { login } = useAuth();
+  const { register, authMode } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>(1);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState<FormData>({
     role: null,
     name: "",
@@ -60,11 +62,47 @@ export default function Register() {
     return true;
   };
 
-  const handleNext = () => {
-    if (step < 3) setStep(s => (s + 1) as Step);
-    else {
-      login(form.role ?? "tenant");
-      navigate(form.role === "owner" ? "/dashboard/proprietario" : "/dashboard/locatario");
+  const handleNext = async () => {
+    setError("");
+
+    if (step < 3) {
+      setStep(s => (s + 1) as Step);
+      return;
+    }
+
+    if (!form.role || form.role === "admin" || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const result = await register({
+        role: form.role,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        cro: form.cro,
+        specialty: form.specialty,
+        cnpj: form.cnpj,
+      });
+
+      if (result.requiresConfirmation) {
+        navigate("/entrar");
+        return;
+      }
+
+      navigate(
+        form.role === "owner"
+          ? "/dashboard/proprietario"
+          : "/dashboard/locatario"
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nao foi possivel concluir o cadastro.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -111,6 +149,12 @@ export default function Register() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-8">
+          {authMode === "mock" && (
+            <div className="mb-6 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-700">
+              Modo local ativo. Enquanto a AWS nao estiver configurada, o cadastro funciona apenas como preparacao do fluxo.
+            </div>
+          )}
+
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div
@@ -336,13 +380,17 @@ export default function Register() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleNext}
-              disabled={!canProceed()}
+              disabled={!canProceed() || isSubmitting}
               className="flex items-center gap-2 bg-primary-500 text-white rounded-xl px-6 py-3 text-sm font-display font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-600 transition-colors"
             >
-              {step === 3 ? "Criar conta" : "Continuar"}
+              {step === 3 ? (isSubmitting ? "Criando..." : "Criar conta") : "Continuar"}
               <ArrowRight size={16} />
             </motion.button>
           </div>
+
+          {error && (
+            <p className="mt-4 text-sm text-red-500">{error}</p>
+          )}
         </div>
       </motion.div>
     </div>

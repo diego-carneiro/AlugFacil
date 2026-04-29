@@ -1,0 +1,51 @@
+type User @model @auth(rules: [{allow: owner, ownerField: "owner"},
+  {allow: groups, groups: ["ADMIN"]},
+  {allow: private, operations: [read]}])
+{
+  cognitoId: String! @primaryKey
+  name: String!
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  cro: String
+  specialty: String
+  verified: Boolean @default(value: "false")
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+  ownedConsultories: [Consultory] @hasMany(references: ["ownerId"])
+}
+
+type Consultory @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: owner, operations: [create, update, delete], ownerField: "owner"},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  name: String!
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  periodMorning: Boolean @default(value: "false")
+  periodAfternoon: Boolean @default(value: "false")
+  periodEvening: Boolean @default(value: "false")
+  featured: Boolean @default(value: "false")
+  isPremium: Boolean @default(value: "false")
+  premiumUntil: AWSDateTime
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+  whatsappNumber: String
+  ownerId: ID!
+  ownerProfile: User @belongsTo(references: ["ownerId"])
+}
+
+enum UserRole {
+  TENANT
+  OWNER
+  ADMIN
+}

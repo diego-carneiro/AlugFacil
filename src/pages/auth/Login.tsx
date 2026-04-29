@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import type { UserRole } from "../../data/users";
+import type { UserRole } from "../../types/user";
 
 const DEMO_ACCOUNTS: { label: string; role: UserRole; email: string }[] = [
   { label: "Entrar como Dentista", role: "tenant", email: "ana.lima@email.com" },
@@ -18,29 +18,35 @@ const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
 };
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, loginAsDemo, authMode } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleDemo = (role: UserRole, demoEmail: string) => {
+  const handleDemo = async (role: UserRole, demoEmail: string) => {
     setEmail(demoEmail);
     setPassword("demo1234");
-    login(role);
+    setError("");
+    await loginAsDemo(role);
     navigate(DASHBOARD_BY_ROLE[role]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Demo: detect role by email pattern
-    const found = DEMO_ACCOUNTS.find(a => a.email === email);
-    if (found) {
-      login(found.role);
-      navigate(DASHBOARD_BY_ROLE[found.role]);
-    } else {
-      login("tenant");
-      navigate(DASHBOARD_BY_ROLE["tenant"]);
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const user = await login({ email, password });
+      navigate(DASHBOARD_BY_ROLE[user.role]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Nao foi possivel entrar.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -67,6 +73,12 @@ export default function Login() {
           <p className="text-neutral-500 mb-8">
             Entre na sua conta para gerenciar suas reservas.
           </p>
+
+          {authMode === "mock" && (
+            <div className="mb-6 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-700">
+              Modo local ativo. Enquanto o sandbox AWS nao estiver configurado, o login usa dados de demo.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -117,11 +129,16 @@ export default function Login() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               type="submit"
-              className="w-full bg-primary-500 text-white rounded-xl py-3 font-display font-semibold flex items-center justify-center gap-2 hover:bg-primary-600 transition-colors"
+              disabled={isSubmitting}
+              className="w-full bg-primary-500 text-white rounded-xl py-3 font-display font-semibold flex items-center justify-center gap-2 hover:bg-primary-600 transition-colors disabled:opacity-60"
             >
               <LogIn size={18} />
-              Entrar
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </motion.button>
+
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
           </form>
 
           <div className="relative my-6">

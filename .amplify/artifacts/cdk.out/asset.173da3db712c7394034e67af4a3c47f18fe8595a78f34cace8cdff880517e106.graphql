@@ -1,0 +1,484 @@
+type User @aws_iam @aws_cognito_user_pools {
+  cognitoId: String!
+  name: String!
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  cro: String
+  specialty: String
+  verified: Boolean
+  rating: Float
+  totalReviews: Int
+  ownedConsultories(filter: ModelConsultoryFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelConsultoryConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  owner: String
+}
+
+type Consultory @aws_api_key @aws_iam @aws_cognito_user_pools {
+  name: String!
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  featured: Boolean
+  isPremium: Boolean
+  premiumUntil: AWSDateTime
+  rating: Float
+  totalReviews: Int
+  whatsappNumber: String
+  ownerId: ID!
+  ownerProfile: User
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  owner: String
+}
+
+enum UserRole {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+input AmplifyAIConversationTurnErrorInput {
+  errorType: String!
+  message: String!
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelUserConnection @aws_iam @aws_cognito_user_pools {
+  items: [User]!
+  nextToken: String
+}
+
+input ModelUserRoleInput {
+  eq: UserRole
+  ne: UserRole
+}
+
+input ModelUserFilterInput {
+  cognitoId: ModelStringInput
+  name: ModelStringInput
+  email: ModelStringInput
+  phone: ModelStringInput
+  role: ModelUserRoleInput
+  avatarKey: ModelStringInput
+  cro: ModelStringInput
+  specialty: ModelStringInput
+  verified: ModelBooleanInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelUserFilterInput]
+  or: [ModelUserFilterInput]
+  not: ModelUserFilterInput
+  owner: ModelStringInput
+}
+
+type Query {
+  getUser(cognitoId: String!): User @aws_iam @aws_cognito_user_pools
+  listUsers(cognitoId: String, filter: ModelUserFilterInput, limit: Int, nextToken: String, sortDirection: ModelSortDirection): ModelUserConnection @aws_iam @aws_cognito_user_pools
+  getConsultory(id: ID!): Consultory @aws_api_key @aws_iam @aws_cognito_user_pools
+  listConsultories(filter: ModelConsultoryFilterInput, limit: Int, nextToken: String): ModelConsultoryConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
+input ModelUserConditionInput {
+  name: ModelStringInput
+  email: ModelStringInput
+  phone: ModelStringInput
+  role: ModelUserRoleInput
+  avatarKey: ModelStringInput
+  cro: ModelStringInput
+  specialty: ModelStringInput
+  verified: ModelBooleanInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  and: [ModelUserConditionInput]
+  or: [ModelUserConditionInput]
+  not: ModelUserConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  owner: ModelStringInput
+}
+
+input CreateUserInput {
+  cognitoId: String!
+  name: String!
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  cro: String
+  specialty: String
+  verified: Boolean
+  rating: Float
+  totalReviews: Int
+}
+
+input UpdateUserInput {
+  cognitoId: String!
+  name: String
+  email: AWSEmail
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  cro: String
+  specialty: String
+  verified: Boolean
+  rating: Float
+  totalReviews: Int
+}
+
+input DeleteUserInput {
+  cognitoId: String!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!, condition: ModelUserConditionInput): User @aws_iam @aws_cognito_user_pools
+  updateUser(input: UpdateUserInput!, condition: ModelUserConditionInput): User @aws_iam @aws_cognito_user_pools
+  deleteUser(input: DeleteUserInput!, condition: ModelUserConditionInput): User @aws_iam @aws_cognito_user_pools
+  createConsultory(input: CreateConsultoryInput!, condition: ModelConsultoryConditionInput): Consultory @aws_iam @aws_cognito_user_pools
+  updateConsultory(input: UpdateConsultoryInput!, condition: ModelConsultoryConditionInput): Consultory @aws_iam @aws_cognito_user_pools
+  deleteConsultory(input: DeleteConsultoryInput!, condition: ModelConsultoryConditionInput): Consultory @aws_iam @aws_cognito_user_pools
+}
+
+input ModelSubscriptionUserFilterInput {
+  cognitoId: ModelSubscriptionStringInput
+  name: ModelSubscriptionStringInput
+  email: ModelSubscriptionStringInput
+  phone: ModelSubscriptionStringInput
+  role: ModelSubscriptionStringInput
+  avatarKey: ModelSubscriptionStringInput
+  cro: ModelSubscriptionStringInput
+  specialty: ModelSubscriptionStringInput
+  verified: ModelSubscriptionBooleanInput
+  rating: ModelSubscriptionFloatInput
+  totalReviews: ModelSubscriptionIntInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionUserFilterInput]
+  or: [ModelSubscriptionUserFilterInput]
+  owner: ModelStringInput
+}
+
+type Subscription {
+  onCreateUser(filter: ModelSubscriptionUserFilterInput, owner: String): User @aws_subscribe(mutations: ["createUser"]) @aws_iam @aws_cognito_user_pools
+  onUpdateUser(filter: ModelSubscriptionUserFilterInput, owner: String): User @aws_subscribe(mutations: ["updateUser"]) @aws_iam @aws_cognito_user_pools
+  onDeleteUser(filter: ModelSubscriptionUserFilterInput, owner: String): User @aws_subscribe(mutations: ["deleteUser"]) @aws_iam @aws_cognito_user_pools
+  onCreateConsultory(filter: ModelSubscriptionConsultoryFilterInput): Consultory @aws_subscribe(mutations: ["createConsultory"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateConsultory(filter: ModelSubscriptionConsultoryFilterInput): Consultory @aws_subscribe(mutations: ["updateConsultory"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteConsultory(filter: ModelSubscriptionConsultoryFilterInput): Consultory @aws_subscribe(mutations: ["deleteConsultory"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
+type ModelConsultoryConnection @aws_iam @aws_cognito_user_pools @aws_api_key {
+  items: [Consultory]!
+  nextToken: String
+}
+
+input ModelConsultoryFilterInput {
+  name: ModelStringInput
+  description: ModelStringInput
+  neighborhood: ModelStringInput
+  city: ModelStringInput
+  state: ModelStringInput
+  address: ModelStringInput
+  zipCode: ModelStringInput
+  latitude: ModelFloatInput
+  longitude: ModelFloatInput
+  pricePerPeriod: ModelFloatInput
+  equipment: ModelStringInput
+  periodMorning: ModelBooleanInput
+  periodAfternoon: ModelBooleanInput
+  periodEvening: ModelBooleanInput
+  featured: ModelBooleanInput
+  isPremium: ModelBooleanInput
+  premiumUntil: ModelStringInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  whatsappNumber: ModelStringInput
+  ownerId: ModelIDInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelConsultoryFilterInput]
+  or: [ModelConsultoryFilterInput]
+  not: ModelConsultoryFilterInput
+  owner: ModelStringInput
+}
+
+input ModelConsultoryConditionInput {
+  name: ModelStringInput
+  description: ModelStringInput
+  neighborhood: ModelStringInput
+  city: ModelStringInput
+  state: ModelStringInput
+  address: ModelStringInput
+  zipCode: ModelStringInput
+  latitude: ModelFloatInput
+  longitude: ModelFloatInput
+  pricePerPeriod: ModelFloatInput
+  equipment: ModelStringInput
+  periodMorning: ModelBooleanInput
+  periodAfternoon: ModelBooleanInput
+  periodEvening: ModelBooleanInput
+  featured: ModelBooleanInput
+  isPremium: ModelBooleanInput
+  premiumUntil: ModelStringInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  whatsappNumber: ModelStringInput
+  ownerId: ModelIDInput
+  and: [ModelConsultoryConditionInput]
+  or: [ModelConsultoryConditionInput]
+  not: ModelConsultoryConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  owner: ModelStringInput
+}
+
+input CreateConsultoryInput {
+  name: String!
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  featured: Boolean
+  isPremium: Boolean
+  premiumUntil: AWSDateTime
+  rating: Float
+  totalReviews: Int
+  whatsappNumber: String
+  ownerId: ID!
+  id: ID
+}
+
+input UpdateConsultoryInput {
+  name: String
+  description: String
+  neighborhood: String
+  city: String
+  state: String
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float
+  equipment: [String]
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  featured: Boolean
+  isPremium: Boolean
+  premiumUntil: AWSDateTime
+  rating: Float
+  totalReviews: Int
+  whatsappNumber: String
+  ownerId: ID
+  id: ID!
+}
+
+input DeleteConsultoryInput {
+  id: ID!
+}
+
+input ModelSubscriptionConsultoryFilterInput {
+  name: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  neighborhood: ModelSubscriptionStringInput
+  city: ModelSubscriptionStringInput
+  state: ModelSubscriptionStringInput
+  address: ModelSubscriptionStringInput
+  zipCode: ModelSubscriptionStringInput
+  latitude: ModelSubscriptionFloatInput
+  longitude: ModelSubscriptionFloatInput
+  pricePerPeriod: ModelSubscriptionFloatInput
+  equipment: ModelSubscriptionStringInput
+  periodMorning: ModelSubscriptionBooleanInput
+  periodAfternoon: ModelSubscriptionBooleanInput
+  periodEvening: ModelSubscriptionBooleanInput
+  featured: ModelSubscriptionBooleanInput
+  isPremium: ModelSubscriptionBooleanInput
+  premiumUntil: ModelSubscriptionStringInput
+  rating: ModelSubscriptionFloatInput
+  totalReviews: ModelSubscriptionIntInput
+  whatsappNumber: ModelSubscriptionStringInput
+  ownerId: ModelSubscriptionIDInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionConsultoryFilterInput]
+  or: [ModelSubscriptionConsultoryFilterInput]
+  owner: ModelStringInput
+}

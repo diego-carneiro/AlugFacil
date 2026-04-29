@@ -4,7 +4,7 @@ import { MessageCircle, AtSign, Send } from "lucide-react";
 import Container from "../ui/Container";
 import SectionTitle from "../ui/SectionTitle";
 import Button from "../ui/Button";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../data/consultories";
+import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../config/contact";
 import { fadeInUp, viewportConfig } from "../../hooks/useScrollReveal";
 
 export default function ContactSection() {

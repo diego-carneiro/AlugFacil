@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import {
   Users,
@@ -16,8 +16,9 @@ import {
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import { bookings, statusColors, statusLabels, periodLabels } from "../../data/bookings";
-import { users } from "../../data/users";
+import type { User } from "../../types/user";
 import { consultories } from "../../data/consultories";
+import { listUsers } from "../../lib/api/users";
 
 const navItems = [
   { label: "Visão geral", path: "/dashboard/admin", icon: <TrendingUp size={18} /> },
@@ -30,6 +31,24 @@ type TabId = "overview" | "users" | "bookings" | "verifications";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUsers() {
+      const items = await listUsers();
+      if (!cancelled) {
+        setUsers(items);
+      }
+    }
+
+    void loadUsers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const totalRevenue = bookings
     .filter(b => b.status === "completed")

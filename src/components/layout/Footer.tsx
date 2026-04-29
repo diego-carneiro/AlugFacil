@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { AtSign, MessageCircle } from "lucide-react";
 import Container from "../ui/Container";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../data/consultories";
+import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../config/contact";
 
 export default function Footer() {
   return (

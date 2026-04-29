@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Send, Building2 } from "lucide-react";
 import Container from "../components/ui/Container";
 import Button from "../components/ui/Button";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../data/consultories";
+import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../config/contact";
 import { fadeInUp, viewportConfig } from "../hooks/useScrollReveal";
 
 const equipmentOptions = [

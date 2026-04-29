@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import Container from "../ui/Container";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
-import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../data/consultories";
+import { buildWhatsAppLink, WHATSAPP_DEFAULT } from "../../config/contact";
 
 export default function Hero() {
   return (

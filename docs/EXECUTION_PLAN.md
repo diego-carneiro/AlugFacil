@@ -14,6 +14,18 @@ A migracao deve acontecer em 5 fases, preservando o frontend atual enquanto os m
 4. Storage, vistoria e avaliacoes
 5. Pagamentos, admin e automacoes finais
 
+## Principio de integracao
+
+A aplicacao deve ficar tecnicamente pronta para consumir uma `User Pool` do Cognito e os demais servicos do Amplify desde o inicio da integracao.
+
+Ao mesmo tempo, durante o desenvolvimento inicial, podemos manter alguns mocks pequenos e controlados apenas para:
+
+- popular a interface
+- validar fluxos visuais
+- permitir testes locais antes do sandbox AWS estar disponivel
+
+Esses mocks nao devem ser a arquitetura final da aplicacao. Eles existem apenas como apoio temporario de desenvolvimento e devem ser substituidos progressivamente conforme os servicos reais da AWS forem ativados.
+
 ---
 
 ## Fase 1 - Fundacao
@@ -198,11 +210,12 @@ O que manter temporariamente:
 - redirecionamento por perfil
 - dashboards existentes
 - UI atual
+- mocks pequenos para testes locais enquanto a AWS ainda nao estiver operacional
 
 Resultado esperado:
 
 - o login deixa de depender de usuarios hardcoded
-- o cadastro cria usuarios reais no Cognito
+- o cadastro fica pronto para criar usuarios reais no Cognito
 
 ### 7. Criar camada real de dados para `User` e `Consultory`
 
@@ -236,6 +249,11 @@ Resultado esperado:
 
 - catalogo e detalhe passam a usar backend real
 - `src/data/consultories.ts` vira legado temporario
+
+Dependencia importante:
+
+- sem `aws configure`, `ampx sandbox` e `amplify_outputs.json` real, essa camada ainda operara com fallback local
+- portanto, a estrutura da Fase 2 pode ser preparada antes, mas o consumo realmente real depende da conclusao cloud da Fase 1
 
 ### 8. Persistir perfil do usuario no banco
 
@@ -294,6 +312,11 @@ Resultado esperado:
 ### 10. Implementar `Booking` e `Availability`
 
 Objetivo: sair do mock nas reservas.
+
+Pre-condicao:
+
+- a aplicacao precisa estar conectada a recursos reais do Amplify
+- sem isso, a Fase 2 avanca apenas em preparacao estrutural, nao em consumo real de dados
 
 Agora sim adicione ao schema:
 
@@ -625,4 +648,3 @@ npm run build
 - [ ] `amplify_outputs.json` gerado
 - [ ] Frontend configurado com `Amplify.configure(outputs)`
 - [ ] Projeto compilando apos a integracao inicial
-

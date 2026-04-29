@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { MapPin, ArrowRight, Search, Star, SlidersHorizontal, X, Zap } from "lucide-react";
 import Container from "../components/ui/Container";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
-import { consultories } from "../data/consultories";
+import type { Consultory } from "../data/consultories";
+import { listConsultories } from "../lib/api/consultories";
 import { staggerContainer, fadeInUp, viewportConfig } from "../hooks/useScrollReveal";
 
-const neighborhoods = ["Todos", ...new Set(consultories.map((c) => c.neighborhood))];
 const priceRanges = [
   { label: "Todos", min: 0, max: Infinity },
   { label: "Até R$ 200", min: 0, max: 200 },
@@ -32,10 +32,32 @@ const ALL_EQUIPMENT = [
 ];
 
 export default function Listings() {
+  const [consultories, setConsultories] = useState<Consultory[]>([]);
   const [selectedNeighborhood, setSelectedNeighborhood] = useState("Todos");
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
   const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadConsultories() {
+      const items = await listConsultories();
+      if (!cancelled) {
+        setConsultories(items);
+        setIsLoading(false);
+      }
+    }
+
+    void loadConsultories();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const neighborhoods = ["Todos", ...new Set(consultories.map((c) => c.neighborhood))];
 
   const toggleEquipment = (eq: string) => {
     setSelectedEquipment(prev =>
@@ -77,7 +99,9 @@ export default function Listings() {
             Consultórios disponíveis
           </h1>
           <p className="text-lg text-neutral-500">
-            Encontre o espaço ideal para atender seus pacientes
+            {isLoading
+              ? "Carregando consultórios..."
+              : "Encontre o espaço ideal para atender seus pacientes"}
           </p>
         </motion.div>
 

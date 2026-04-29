@@ -1181,6 +1181,8 @@ npx ampx sandbox secret set STRIPE_WEBHOOK_SECRET
 
 ## 14. Ordem de Implementação Recomendada
 
+> **Observação:** enquanto a AWS ainda não estiver configurada e conectada de forma real, partes do frontend podem continuar usando mocks controlados apenas para desenvolvimento. Esses mocks devem desaparecer progressivamente ao longo da implementação, e ao final da integração o sistema deve ter **AWS como fonte de verdade** para autenticação, dados, arquivos e automações.
+
 ```
 Fase 1 — Fundação (1–2 semanas)
   ✓ Configurar Amplify Gen2 no projeto

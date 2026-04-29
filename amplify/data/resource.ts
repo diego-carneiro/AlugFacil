@@ -46,7 +46,7 @@ const schema = a.schema({
       totalReviews: a.integer().default(0),
       whatsappNumber: a.string(),
       ownerId: a.id().required(),
-      owner: a.belongsTo("User", "ownerId"),
+      ownerProfile: a.belongsTo("User", "ownerId"),
     })
     .authorization((allow) => [
       allow.publicApiKey().to(["read"]),
