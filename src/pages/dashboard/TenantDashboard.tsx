@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import {
@@ -17,17 +17,21 @@ import Badge from "../../components/ui/Badge";
 import ReviewModal from "../../components/modals/ReviewModal";
 import InspectionModal from "../../components/modals/InspectionModal";
 import {
-  bookings,
   periodLabels,
   statusColors,
   statusLabels,
   type Booking,
-} from "../../data/bookings";
+} from "../../types/booking";
 import { useAuth } from "../../context/AuthContext";
+import { listBookingsByTenant } from "../../lib/api/bookings";
 
 const navItems = [
   { label: "Visão geral", path: "/dashboard/locatario", icon: <CalendarDays size={18} /> },
-  { label: "Buscar consultórios", path: "/consultorios", icon: <Search size={18} /> },
+  {
+    label: "Buscar consultórios",
+    path: "/dashboard/locatario/buscar-consultorios",
+    icon: <Search size={18} />,
+  },
 ];
 
 type TabId = "active" | "history" | "reviews";
@@ -38,16 +42,72 @@ export default function TenantDashboard() {
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const [inspectionBooking, setInspectionBooking] = useState<Booking | null>(null);
   const [inspectionType, setInspectionType] = useState<"check-in" | "check-out">("check-in");
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [refreshTick, setRefreshTick] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
-  const myBookings = bookings.filter(b => b.tenantId === (currentUser?.id ?? "tenant-1"));
+  useEffect(() => {
+    const tenantId = currentUser?.id;
+    if (!tenantId) {
+      setBookings([]);
+      setIsLoading(false);
+      return;
+    }
+    const safeTenantId = tenantId;
 
-  const activeBookings = myBookings.filter(b => b.status === "confirmed" || b.status === "pending");
-  const historyBookings = myBookings.filter(b => b.status === "completed" || b.status === "cancelled");
-  const pendingReview = myBookings.filter(b => b.status === "completed" && !b.reviewedByTenant);
+    let cancelled = false;
 
-  const totalSpent = myBookings
-    .filter(b => b.status === "completed")
-    .reduce((sum, b) => sum + b.price, 0);
+    async function loadBookings() {
+      try {
+        const items = await listBookingsByTenant(safeTenantId);
+        if (!cancelled) {
+          setBookings(items);
+          setError("");
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          const message =
+            loadError instanceof Error ? loadError.message : "Não foi possível carregar as reservas.";
+          setError(message);
+          setBookings([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadBookings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser?.id, refreshTick]);
+
+  const activeBookings = useMemo(
+    () => bookings.filter((b) => b.status === "confirmed" || b.status === "pending"),
+    [bookings]
+  );
+
+  const historyBookings = useMemo(
+    () => bookings.filter((b) => b.status === "completed" || b.status === "cancelled"),
+    [bookings]
+  );
+
+  const pendingReview = useMemo(
+    () => bookings.filter((b) => b.status === "completed" && !b.reviewedByTenant),
+    [bookings]
+  );
+
+  const totalSpent = useMemo(
+    () =>
+      bookings
+        .filter((b) => b.status === "completed")
+        .reduce((sum, b) => sum + b.price, 0),
+    [bookings]
+  );
 
   const tabs: { id: TabId; label: string; count?: number }[] = [
     { id: "active", label: "Reservas ativas", count: activeBookings.length },
@@ -61,9 +121,8 @@ export default function TenantDashboard() {
   };
 
   return (
-    <DashboardLayout navItems={navItems} title="Meu Painel">
+    <DashboardLayout navItems={navItems} title="Meu Painel" titleClassName="font-normal">
       <div className="space-y-8">
-        {/* Greeting */}
         <div>
           <h2 className="text-2xl font-display font-bold text-neutral-900">
             Olá, {currentUser?.name?.split(" ")[0]} 👋
@@ -73,7 +132,6 @@ export default function TenantDashboard() {
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<CalendarDays size={20} />}
@@ -104,10 +162,15 @@ export default function TenantDashboard() {
           />
         </div>
 
-        {/* Tabs */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
         <div>
           <div className="flex gap-1 bg-neutral-100 p-1 rounded-xl w-fit mb-6">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -127,80 +190,83 @@ export default function TenantDashboard() {
             ))}
           </div>
 
-          {/* Active bookings */}
-          {activeTab === "active" && (
-            <div className="space-y-4">
-              {activeBookings.length === 0 ? (
-                <EmptyState
-                  message="Nenhuma reserva ativa no momento."
-                  cta="Buscar consultórios"
-                  href="/consultorios"
-                />
-              ) : (
-                activeBookings.map(booking => (
-                  <BookingCard
-                    key={booking.id}
-                    booking={booking}
-                    onInspection={openInspection}
-                  />
-                ))
-              )}
-            </div>
-          )}
-
-          {/* History */}
-          {activeTab === "history" && (
-            <div className="space-y-4">
-              {historyBookings.length === 0 ? (
-                <EmptyState message="Nenhuma locação no histórico ainda." />
-              ) : (
-                historyBookings.map(booking => (
-                  <BookingCard
-                    key={booking.id}
-                    booking={booking}
-                    onReview={() => setReviewBooking(booking)}
-                  />
-                ))
-              )}
-            </div>
-          )}
-
-          {/* Pending reviews */}
-          {activeTab === "reviews" && (
-            <div className="space-y-4">
-              {pendingReview.length === 0 ? (
-                <EmptyState message="Nenhuma avaliação pendente. Obrigado!" />
-              ) : (
-                pendingReview.map(booking => (
-                  <div
-                    key={booking.id}
-                    className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
-                  >
-                    <img
-                      src={booking.consultoryImage}
-                      alt={booking.consultoryName}
-                      className="w-16 h-16 rounded-xl object-cover shrink-0"
+          {isLoading ? (
+            <EmptyState message="Carregando suas reservas..." />
+          ) : (
+            <>
+              {activeTab === "active" && (
+                <div className="space-y-4">
+                  {activeBookings.length === 0 ? (
+                    <EmptyState
+                      message="Nenhuma reserva ativa no momento."
+                      cta="Buscar consultórios"
+                      href="/dashboard/locatario/buscar-consultorios"
                     />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-display font-bold text-neutral-800 truncate">
-                        {booking.consultoryName}
-                      </p>
-                      <p className="text-sm text-neutral-500">
-                        {booking.date} · {periodLabels[booking.period]}
-                      </p>
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => setReviewBooking(booking)}
-                      className="flex items-center gap-2 bg-accent-300 text-neutral-900 rounded-xl px-4 py-2.5 text-sm font-display font-semibold hover:bg-accent-400 transition-colors shrink-0"
-                    >
-                      <MessageSquarePlus size={16} />
-                      Avaliar
-                    </motion.button>
-                  </div>
-                ))
+                  ) : (
+                    activeBookings.map((booking) => (
+                      <BookingCard
+                        key={booking.id}
+                        booking={booking}
+                        onInspection={openInspection}
+                      />
+                    ))
+                  )}
+                </div>
               )}
-            </div>
+
+              {activeTab === "history" && (
+                <div className="space-y-4">
+                  {historyBookings.length === 0 ? (
+                    <EmptyState message="Nenhuma locação no histórico ainda." />
+                  ) : (
+                    historyBookings.map((booking) => (
+                      <BookingCard
+                        key={booking.id}
+                        booking={booking}
+                        onReview={() => setReviewBooking(booking)}
+                      />
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === "reviews" && (
+                <div className="space-y-4">
+                  {pendingReview.length === 0 ? (
+                    <EmptyState message="Nenhuma avaliação pendente. Obrigado!" />
+                  ) : (
+                    pendingReview.map((booking) => (
+                      <div
+                        key={booking.id}
+                        className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+                      >
+                        <img
+                          src={booking.consultoryImage}
+                          alt={booking.consultoryName}
+                          className="w-16 h-16 rounded-xl object-cover shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-display font-bold text-neutral-800 truncate">
+                            {booking.consultoryName}
+                          </p>
+                          <p className="text-sm text-neutral-500">
+                            {booking.date} · {periodLabels[booking.period]}
+                          </p>
+                        </div>
+                        <motion.button
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => setReviewBooking(booking)}
+                          className="flex items-center gap-2 bg-accent-300 text-neutral-900 rounded-xl px-4 py-2.5 text-sm font-display font-semibold hover:bg-accent-400 transition-colors shrink-0"
+                        >
+                          <MessageSquarePlus size={16} />
+                          Avaliar
+                        </motion.button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -211,6 +277,7 @@ export default function TenantDashboard() {
           onClose={() => setReviewBooking(null)}
           booking={reviewBooking}
           reviewerRole="tenant"
+          onSubmitted={() => setRefreshTick((value) => value + 1)}
         />
       )}
 
@@ -220,6 +287,7 @@ export default function TenantDashboard() {
           onClose={() => setInspectionBooking(null)}
           booking={inspectionBooking}
           type={inspectionType}
+          onSubmitted={() => setRefreshTick((value) => value + 1)}
         />
       )}
     </DashboardLayout>

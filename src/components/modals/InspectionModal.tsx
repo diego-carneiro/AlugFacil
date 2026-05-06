@@ -1,14 +1,19 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { CheckCircle2, Camera, CheckCheck, AlertTriangle, XCircle } from "lucide-react";
 import { motion } from "motion/react";
 import Modal from "../ui/Modal";
-import type { Booking } from "../../data/bookings";
+import type { Booking } from "../../types/booking";
+import { createInspection } from "../../lib/api/inspections";
+import { updateBooking } from "../../lib/api/bookings";
+import { useAuth } from "../../context/AuthContext";
+import { uploadInspectionPhotos } from "../../lib/storage/media";
 
 interface InspectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   booking: Booking;
   type: "check-in" | "check-out";
+  onSubmitted?: () => void;
 }
 
 type ItemStatus = "ok" | "damaged" | "missing" | null;
@@ -30,6 +35,8 @@ const DEFAULT_ITEMS: InspectionItem[] = [
   { id: "descartaveis", label: "Descartáveis repostos", status: null, notes: "" },
   { id: "limpeza", label: "Limpeza geral", status: null, notes: "" },
 ];
+
+const MAX_INSPECTION_PHOTOS = 10;
 
 const statusConfig: Record<
   Exclude<ItemStatus, null>,
@@ -57,33 +64,83 @@ export default function InspectionModal({
   onClose,
   booking,
   type,
+  onSubmitted,
 }: InspectionModalProps) {
+  const { currentUser } = useAuth();
   const [items, setItems] = useState<InspectionItem[]>(DEFAULT_ITEMS);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
 
   const setStatus = (id: string, status: ItemStatus) => {
-    setItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, status } : item))
-    );
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, status } : item)));
   };
 
   const setNotes = (id: string, notes: string) => {
-    setItems(prev =>
-      prev.map(item => (item.id === id ? { ...item, notes } : item))
-    );
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, notes } : item)));
   };
 
-  const allFilled = items.every(item => item.status !== null);
-  const issueCount = items.filter(i => i.status === "damaged" || i.status === "missing").length;
+  const handlePhotoSelection = (event: ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(event.target.files ?? []);
+    setPhotoFiles(selected.slice(0, MAX_INSPECTION_PHOTOS));
+  };
 
-  const handleSubmit = () => {
+  const allFilled = items.every((item) => item.status !== null);
+  const issueCount = items.filter((i) => i.status === "damaged" || i.status === "missing").length;
+
+  const handleSubmit = async () => {
     if (!allFilled) return;
-    setSubmitted(true);
+
+    if (!currentUser?.id) {
+      setError("Você precisa estar autenticado para registrar vistoria.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const photoKeys =
+        photoFiles.length > 0 ? await uploadInspectionPhotos(currentUser.id, photoFiles) : [];
+
+      await createInspection({
+        bookingId: booking.id,
+        consultoryId: booking.consultoryId,
+        createdById: currentUser.id,
+        createdByName: currentUser.name,
+        type: type === "check-in" ? "check_in" : "check_out",
+        findingsJson: JSON.stringify(items),
+        issueCount,
+        photoKeys,
+        inspectedAt: new Date().toISOString(),
+      });
+
+      await updateBooking(booking.id, {
+        inspectedCheckIn: type === "check-in" ? true : booking.inspectedCheckIn,
+        inspectedCheckOut: type === "check-out" ? true : booking.inspectedCheckOut,
+      });
+
+      setSubmitted(true);
+      onSubmitted?.();
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error ? submitError.message : "Não foi possível registrar vistoria.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
     onClose();
-    setTimeout(() => { setSubmitted(false); setItems(DEFAULT_ITEMS); }, 300);
+    setTimeout(() => {
+      setSubmitted(false);
+      setItems(DEFAULT_ITEMS);
+      setPhotoFiles([]);
+      setError("");
+      setIsSubmitting(false);
+    }, 300);
   };
 
   if (submitted) {
@@ -98,9 +155,7 @@ export default function InspectionModal({
           >
             <CheckCircle2 size={36} className="text-green-500" />
           </motion.div>
-          <h3 className="font-display font-bold text-xl text-neutral-900 mb-2">
-            Vistoria registrada!
-          </h3>
+          <h3 className="font-display font-bold text-xl text-neutral-900 mb-2">Vistoria registrada!</h3>
           {issueCount > 0 ? (
             <p className="text-neutral-500 text-sm mb-6">
               {issueCount} item(s) com ocorrência registrados. O proprietário será notificado.
@@ -139,12 +194,12 @@ export default function InspectionModal({
         </p>
 
         <div className="space-y-3">
-          {items.map(item => (
+          {items.map((item) => (
             <div key={item.id} className="border border-neutral-200 rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm font-medium text-neutral-800">{item.label}</span>
                 <div className="flex gap-2">
-                  {(["ok", "damaged", "missing"] as const).map(s => (
+                  {(["ok", "damaged", "missing"] as const).map((s) => (
                     <button
                       key={s}
                       onClick={() => setStatus(item.id, s)}
@@ -166,7 +221,7 @@ export default function InspectionModal({
                     type="text"
                     placeholder="Descreva a ocorrência..."
                     value={item.notes}
-                    onChange={e => setNotes(item.id, e.target.value)}
+                    onChange={(e) => setNotes(item.id, e.target.value)}
                     className="w-full px-3 py-2 rounded-lg border border-neutral-200 text-xs focus:outline-none focus:ring-2 focus:ring-primary-300"
                   />
                 </motion.div>
@@ -175,23 +230,34 @@ export default function InspectionModal({
           ))}
         </div>
 
-        {/* Photo upload area (mock) */}
         <div className="border-2 border-dashed border-neutral-200 rounded-xl p-6 text-center">
           <Camera size={24} className="text-neutral-300 mx-auto mb-2" />
-          <p className="text-sm text-neutral-400">Adicionar fotos da vistoria</p>
-          <p className="text-xs text-neutral-300 mt-1">Clique ou arraste as imagens</p>
+          <p className="text-sm text-neutral-500 mb-2">Anexe fotos para registrar evidências da vistoria.</p>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handlePhotoSelection}
+            className="block w-full text-xs text-neutral-500"
+          />
+          <p className="text-xs text-neutral-400 mt-2">Até {MAX_INSPECTION_PHOTOS} imagens por vistoria.</p>
+          {photoFiles.length > 0 && (
+            <p className="text-xs text-primary-600 mt-1">{photoFiles.length} imagem(ns) selecionada(s).</p>
+          )}
         </div>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex items-center justify-between pt-2">
           <p className="text-xs text-neutral-400">
-            {items.filter(i => i.status !== null).length}/{items.length} itens avaliados
+            {items.filter((i) => i.status !== null).length}/{items.length} itens avaliados
           </p>
           <button
-            disabled={!allFilled}
+            disabled={!allFilled || isSubmitting}
             onClick={handleSubmit}
             className="bg-primary-500 text-white rounded-xl px-6 py-3 font-display font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-600 transition-colors"
           >
-            Registrar vistoria
+            {isSubmitting ? "Registrando..." : "Registrar vistoria"}
           </button>
         </div>
       </div>

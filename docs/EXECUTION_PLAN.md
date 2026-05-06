@@ -4,6 +4,21 @@
 
 Migrar o AlugFacil de um frontend com estado mockado para uma aplicacao fullstack com AWS Amplify Gen2, mantendo o app utilizavel durante a transicao e reduzindo retrabalho.
 
+## Status atual do projeto
+
+Data de atualizacao: 2026-04-30
+
+- Fase 1 de instalacao e fundacao AWS concluida
+- AWS CLI configurado e sandbox Amplify ativo
+- `amplify_outputs.json` real em uso no projeto
+- backend inicial (`auth` + `data` com `User` e `Consultory`) validado
+- etapa 8 concluida: persistencia do perfil `User` no AppSync/Dynamo
+- etapa 9 concluida: cadastro de consultorio com criacao real em AWS
+- etapa 10 concluida: schema e fluxo real de reservas (`Booking` e `Availability`)
+- etapa 11 concluida: dashboards migrados para consumo de dados reais
+- mocks de dados removidos do frontend (`src/data/*`) e arquivo de migracao de mocks removido
+- fase 3 em andamento: `storage` adicionado, `Inspection`/`Review` ativos e upload real de imagens iniciado no frontend
+
 ## Estrategia Geral
 
 A migracao deve acontecer em 5 fases, preservando o frontend atual enquanto os mocks sao substituidos por backend real. A ordem recomendada e:
@@ -25,6 +40,37 @@ Ao mesmo tempo, durante o desenvolvimento inicial, podemos manter alguns mocks p
 - permitir testes locais antes do sandbox AWS estar disponivel
 
 Esses mocks nao devem ser a arquitetura final da aplicacao. Eles existem apenas como apoio temporario de desenvolvimento e devem ser substituidos progressivamente conforme os servicos reais da AWS forem ativados.
+
+---
+
+## Arquitetura de Dominio — Perfis e Identidades
+
+Esta secao estabelece uma decisao de arquitetura fundamental que deve ser respeitada em todas as fases de desenvolvimento, desde o schema do banco ate a UI.
+
+### Separacao entre Usuario e Consultorio
+
+`User` e `Consultory` sao entidades distintas no banco de dados. A confusao entre elas deve ser evitada em modelos, rotas, permissoes e componentes visuais.
+
+| Entidade | Tabela | Perfil publico | Avaliacoes | Rota |
+|---|---|---|---|---|
+| Dentista (locatario) | `User` | Sim | No `User` | `/profile`, `/:username` |
+| Proprietario | `User` | Nao | Nao se aplica | Sem tela de perfil proprio |
+| Consultorio | `Consultory` | Sim | No `Consultory` | `/consultorios/:id` |
+
+### Regras de dominio de perfil
+
+- **Locatarios (dentistas)** possuem perfil publico navegavel. Avaliacoes, especialidade e CRO sao atributos do `User`.
+- **Proprietarios nao possuem tela de perfil proprio**. Todos os dados publicos (descricao, disponibilidade, fotos, avaliacoes) pertencem ao `Consultory` que representam. O nome do proprietario e exibido na tela do consultorio, mas ele nao tem pagina propria.
+- **Consultorios** possuem tela de detalhe propria com horarios disponveis, equipamentos, fotos, avaliacoes e nome do proprietario vinculado.
+- A relacao de dominio e de **posse**: um `User` com role `owner` possui (`hasMany`) um ou mais `Consultory`. O proprietario existe como entidade de autenticacao e controle, mas sua identidade publica e o consultorio.
+
+### Rotas de perfil — definicao canonica
+
+- `/profile` — perfil do usuario autenticado (sempre o proprio usuario logado, apenas dentistas/admins tem perfil util)
+- `/:username` — perfil publico de outro usuario (locatario/dentista); proprietarios nao possuem rota de perfil
+- `/consultorios/:id` — tela de perfil de um consultorio (nao de um usuario)
+
+A tela `/:username` e destinada apenas a dentistas. Quando proprietarios tentarem acessar um perfil publico, devem ser redirecionados ou ver uma mensagem adequada, pois seu perfil publico e o consultorio.
 
 ---
 
@@ -217,6 +263,13 @@ Resultado esperado:
 - o login deixa de depender de usuarios hardcoded
 - o cadastro fica pronto para criar usuarios reais no Cognito
 
+Importante para o fluxo de confirmacao por email:
+
+- durante o desenvolvimento, sera criada uma identidade de email no Amazon SES para testes rapidos do remetente
+- essa identidade de email atende o ambiente de desenvolvimento e validacoes locais, mas nao deve ser tratada como configuracao final de producao
+- em producao, o correto sera substituir essa estrategia por uma identidade de dominio verificada no SES
+- essa troca deve entrar no fechamento do projeto antes do go-live para evitar risco operacional, baixa entregabilidade e dependencia de remetente individual
+
 ### 7. Criar camada real de dados para `User` e `Consultory`
 
 Objetivo: remover dependencia de `src/data/consultories.ts` e comecar a usar AppSync e DynamoDB.
@@ -281,6 +334,12 @@ Resultado esperado:
 
 Objetivo: trocar o fluxo atual de WhatsApp por criacao real de consultorio.
 
+Status em 2026-04-29:
+
+- concluida
+- formulario conectado a criacao real de `Consultory` via AppSync
+- fluxo de WhatsApp removido da fonte principal
+
 Arquivo principal:
 
 - `src/pages/RegisterConsultory.tsx`
@@ -313,10 +372,22 @@ Resultado esperado:
 
 Objetivo: sair do mock nas reservas.
 
+Status em 2026-04-29:
+
+- concluida
+- models `Booking` e `Availability` adicionados ao schema
+- criacao de reserva real conectada ao `BookingModal`
+- bloqueio de disponibilidade conectado ao fluxo de reserva
+- `src/data/bookings.ts` removido
+
 Pre-condicao:
 
 - a aplicacao precisa estar conectada a recursos reais do Amplify
 - sem isso, a Fase 2 avanca apenas em preparacao estrutural, nao em consumo real de dados
+
+Status desta pre-condicao em 2026-04-29:
+
+- atendida (sandbox e outputs reais ativos)
 
 Agora sim adicione ao schema:
 
@@ -344,6 +415,11 @@ Resultado esperado:
 
 Objetivo: fazer os tres dashboards consumirem AppSync.
 
+Status em 2026-04-29:
+
+- concluida
+- `TenantDashboard`, `OwnerDashboard` e `AdminDashboard` consumindo camadas `src/lib/api/*`
+
 Ordem recomendada:
 
 1. `TenantDashboard`
@@ -368,6 +444,12 @@ Resultado esperado:
 ### 12. Adicionar Storage S3
 
 Objetivo: permitir upload real de imagens e documentos.
+
+Status em 2026-04-30:
+
+- backend `storage/resource.ts` criado e conectado ao `backend.ts`
+- upload de imagens no cadastro de consultorio implementado (salvando `imageKeys`)
+- upload de fotos no `InspectionModal` implementado (salvando `photoKeys`)
 
 Adicionar no backend:
 
@@ -397,6 +479,13 @@ Resultado esperado:
 ### 13. Implementar `Inspection` e `Review`
 
 Objetivo: concluir o ciclo operacional da locacao.
+
+Status em 2026-04-30:
+
+- models `Inspection` e `Review` adicionados ao schema
+- `InspectionModal` e `ReviewModal` migrados para gravacao real
+- dashboards atualizando dados apos submissao
+- detalhe de consultorio lendo avaliacoes reais
 
 Adicionar ao schema:
 
@@ -487,6 +576,12 @@ Itens:
 - criar `amplify.yml`
 - cadastrar secrets
 - validar geracao de outputs por branch
+- configurar o Cognito para envio de email com Amazon SES no ambiente final
+- revisar identidade de remetente usada durante o desenvolvimento
+- trocar identidade de email por identidade de dominio antes da entrada em producao
+- validar se a conta Amazon SES saiu do sandbox
+- validar SPF, DKIM e, se aplicavel, DMARC do dominio de envio
+- revisar endereco `from` definitivo do produto (ex.: `no-reply@seudominio.com`)
 
 Comandos uteis:
 
@@ -517,6 +612,51 @@ npx ampx pipeline-deploy --branch develop --app-id SEU_APP_ID
 
 ---
 
+## Proximos passos naturais (a partir de 2026-04-30)
+
+1. Publicar o estado atual da Fase 3 no sandbox e validar o deploy do schema (`imageKeys`, `Inspection`, `Review`) + Storage.
+2. Executar validacao ponta a ponta: reserva -> vistoria (com fotos) -> avaliacao -> reflexo nos dashboards.
+3. Implementar atualizacao de metricas de reputacao (`rating` e `totalReviews`) apos novas avaliacoes.
+4. Migrar upload de avatar/documentos para S3, concluindo o escopo de storage da fase.
+5. Tela de perfil do dentista (`/profile`) implementada (2026-05-06): exibe dados do usuario autenticado no estilo rede social. A rota `/:username` esta estruturada para exibir perfis de outros usuarios, mas depende da implementacao de lookup por username no AppSync (campo `username` no model `User` + query dedicada) para ser plenamente funcional.
+6. Adicionar campo `username` unico ao model `User` para viabilizar lookup por `/:username` e garantir URLs de perfil amigaveis para dentistas.
+
+---
+
+## Mudancas obrigatorias para producao
+
+Esta secao deve ser tratada como checklist de corte final. O projeto pode funcionar em desenvolvimento antes disso, mas nao deve entrar em producao sem aplicar estes ajustes.
+
+### Email transacional e Cognito
+
+- durante o desenvolvimento, o fluxo podera operar sem exigencia de codigo de verificacao por email, com auto-confirmacao temporaria no Cognito para acelerar testes do produto
+- durante o desenvolvimento, sera aceita a criacao de uma identidade de email no Amazon SES para destravar testes do fluxo de confirmacao
+- essa identidade de email e apenas um passo temporario de desenvolvimento
+- antes da producao, a auto-confirmacao temporaria deve ser removida
+- antes da producao, a verificacao de cadastro por codigo enviado por email deve voltar a ser obrigatoria
+- antes da producao, deve ser criada e validada uma identidade de dominio no Amazon SES
+- o Cognito deve ser configurado para enviar emails usando Amazon SES com o dominio oficial do produto
+- o endereco de envio final deve sair de remetente pessoal ou tecnico provisiorio e migrar para algo institucional (ex.: `no-reply@seudominio.com`)
+- SPF e DKIM do dominio devem estar validados
+- DMARC deve ser considerado na configuracao final do dominio para aumentar entregabilidade e governanca
+- a conta Amazon SES deve estar fora do sandbox antes do go-live
+
+### Seguranca e operacao
+
+- revisar secrets e variaveis por ambiente (`develop`, `staging`, `main` ou `production`)
+- revisar politicas de autorizacao e grupos do Cognito antes da abertura publica
+- revisar regras de acesso ao S3 para uploads e leitura de arquivos
+- revisar mensagens padrao do Cognito para garantir linguagem e identidade da marca
+
+### Infraestrutura e deploy
+
+- gerar `amplify_outputs.json` por ambiente real de deploy, sem depender de artefato local de sandbox
+- validar pipeline de deploy por branch
+- confirmar que os recursos AWS usados em desenvolvimento nao ficaram acoplados ao ambiente de producao por acidente
+- revisar regioes de Cognito, SES, S3 e AppSync para evitar configuracoes cruzadas
+
+---
+
 ## Comandos base para WSL2
 
 ```bash
@@ -536,7 +676,9 @@ npm run build
 
 ---
 
-## Checklist da Fase 1
+## Checklist historico da Fase 1 (concluida)
+
+Este bloco fica apenas como registro da implantacao inicial.
 
 ### Preparacao do ambiente
 

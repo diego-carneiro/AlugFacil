@@ -3,13 +3,17 @@ import { CheckCircle2 } from "lucide-react";
 import { motion } from "motion/react";
 import Modal from "../ui/Modal";
 import StarRating from "../ui/StarRating";
-import type { Booking } from "../../data/bookings";
+import type { Booking } from "../../types/booking";
+import { createReview } from "../../lib/api/reviews";
+import { updateBooking } from "../../lib/api/bookings";
+import { useAuth } from "../../context/AuthContext";
 
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   booking: Booking;
   reviewerRole: "tenant" | "owner";
+  onSubmitted?: () => void;
 }
 
 export default function ReviewModal({
@@ -17,23 +21,68 @@ export default function ReviewModal({
   onClose,
   booking,
   reviewerRole,
+  onSubmitted,
 }: ReviewModalProps) {
+  const { currentUser } = useAuth();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const targetName =
-    reviewerRole === "tenant" ? booking.ownerName : booking.tenantName;
+  const targetName = reviewerRole === "tenant" ? booking.ownerName : booking.tenantName;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) return;
-    setSubmitted(true);
+
+    if (!currentUser?.id) {
+      setError("Você precisa estar autenticado para enviar avaliação.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      await createReview({
+        bookingId: booking.id,
+        consultoryId: booking.consultoryId,
+        fromUserId: currentUser.id,
+        fromUserName: currentUser.name,
+        toUserId: reviewerRole === "tenant" ? booking.ownerId : booking.tenantId,
+        toUserName: reviewerRole === "tenant" ? booking.ownerName : booking.tenantName,
+        rating,
+        comment,
+        type: reviewerRole === "tenant" ? "tenant_to_owner" : "owner_to_tenant",
+        reviewDate: new Date().toISOString().slice(0, 10),
+      });
+
+      await updateBooking(booking.id, {
+        reviewedByTenant: reviewerRole === "tenant" ? true : booking.reviewedByTenant,
+        reviewedByOwner: reviewerRole === "owner" ? true : booking.reviewedByOwner,
+      });
+
+      setSubmitted(true);
+      onSubmitted?.();
+    } catch (submitError) {
+      const message =
+        submitError instanceof Error ? submitError.message : "Não foi possível enviar a avaliação.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
     onClose();
-    setTimeout(() => { setSubmitted(false); setRating(0); setComment(""); }, 300);
+    setTimeout(() => {
+      setSubmitted(false);
+      setRating(0);
+      setComment("");
+      setError("");
+      setIsSubmitting(false);
+    }, 300);
   };
 
   if (submitted) {
@@ -48,12 +97,8 @@ export default function ReviewModal({
           >
             <CheckCircle2 size={36} className="text-green-500" />
           </motion.div>
-          <h3 className="font-display font-bold text-xl text-neutral-900 mb-2">
-            Avaliação enviada!
-          </h3>
-          <p className="text-neutral-500 text-sm mb-6">
-            Obrigado por contribuir com a comunidade AlugFácil.
-          </p>
+          <h3 className="font-display font-bold text-xl text-neutral-900 mb-2">Avaliação enviada!</h3>
+          <p className="text-neutral-500 text-sm mb-6">Obrigado por contribuir com a comunidade AlugFácil.</p>
           <button
             onClick={handleClose}
             className="w-full bg-primary-500 text-white rounded-xl py-3 font-display font-semibold hover:bg-primary-600 transition-colors"
@@ -75,8 +120,7 @@ export default function ReviewModal({
 
         <div>
           <label className="block text-sm font-medium text-neutral-700 mb-3">
-            Como foi sua experiência com{" "}
-            <span className="text-primary-600">{targetName}</span>?
+            Como foi sua experiência com <span className="text-primary-600">{targetName}</span>?
           </label>
           <div className="flex justify-center">
             <StarRating value={rating} onChange={setRating} size={36} />
@@ -89,10 +133,7 @@ export default function ReviewModal({
         </div>
 
         <div>
-          <label
-            htmlFor="review-comment"
-            className="block text-sm font-medium text-neutral-700 mb-1"
-          >
+          <label htmlFor="review-comment" className="block text-sm font-medium text-neutral-700 mb-1">
             Comentário <span className="text-neutral-400">(opcional)</span>
           </label>
           <textarea
@@ -104,17 +145,17 @@ export default function ReviewModal({
             placeholder="Descreva sua experiência..."
             className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:outline-none focus:ring-2 focus:ring-primary-300 text-sm resize-none"
           />
-          <p className="text-right text-xs text-neutral-400 mt-1">
-            {comment.length}/400
-          </p>
+          <p className="text-right text-xs text-neutral-400 mt-1">{comment.length}/400</p>
         </div>
+
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         <button
           type="submit"
-          disabled={rating === 0}
+          disabled={rating === 0 || isSubmitting}
           className="w-full bg-primary-500 text-white rounded-xl py-3 font-display font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary-600 transition-colors"
         >
-          Enviar avaliação
+          {isSubmitting ? "Enviando..." : "Enviar avaliação"}
         </button>
       </form>
     </Modal>

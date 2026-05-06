@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Stethoscope, Building2, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import type { UserRole } from "../../types/user";
+import RegisterSuccessModal from "../../components/modals/RegisterSuccessModal";
 
 type Step = 1 | 2 | 3;
 
@@ -35,13 +36,23 @@ const STEP_LABELS: Record<Step, string> = {
   3: "Dados profissionais",
 };
 
+function isPasswordValid(password: string): boolean {
+  return (
+    password.length >= 8 &&
+    /[a-z]/.test(password) &&
+    /\d/.test(password) &&
+    /[^A-Za-z0-9]/.test(password)
+  );
+}
+
 export default function Register() {
-  const { register, authMode } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>(1);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [form, setForm] = useState<FormData>({
     role: null,
     name: "",
@@ -58,7 +69,7 @@ export default function Register() {
 
   const canProceed = () => {
     if (step === 1) return form.role !== null;
-    if (step === 2) return form.name && form.email && form.phone && form.password.length >= 6;
+    if (step === 2) return form.name && form.email && form.phone && isPasswordValid(form.password);
     return true;
   };
 
@@ -74,10 +85,16 @@ export default function Register() {
       return;
     }
 
+    if (!isPasswordValid(form.password)) {
+      setError("A senha deve ter no mínimo 8 caracteres, com pelo menos 1 letra minúscula, 1 número e 1 símbolo.");
+      setStep(2);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const result = await register({
+      await register({
         role: form.role,
         name: form.name,
         email: form.email,
@@ -88,16 +105,7 @@ export default function Register() {
         cnpj: form.cnpj,
       });
 
-      if (result.requiresConfirmation) {
-        navigate("/entrar");
-        return;
-      }
-
-      navigate(
-        form.role === "owner"
-          ? "/dashboard/proprietario"
-          : "/dashboard/locatario"
-      );
+      setIsSuccessModalOpen(true);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Nao foi possivel concluir o cadastro.";
       setError(message);
@@ -149,12 +157,6 @@ export default function Register() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-8">
-          {authMode === "mock" && (
-            <div className="mb-6 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-700">
-              Modo local ativo. Enquanto a AWS nao estiver configurada, o cadastro funciona apenas como preparacao do fluxo.
-            </div>
-          )}
-
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div
@@ -274,7 +276,7 @@ export default function Register() {
                       value={form.password}
                       onChange={e => set("password", e.target.value)}
                       className={`${inputClass} pr-11`}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Mínimo 8 caracteres, com minúscula, número e símbolo"
                     />
                     <button
                       type="button"
@@ -393,6 +395,11 @@ export default function Register() {
           )}
         </div>
       </motion.div>
+      <RegisterSuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        onPrimaryAction={() => navigate("/entrar")}
+      />
     </div>
   );
 }

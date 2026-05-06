@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 import { ChevronLeft, ChevronRight, CheckCircle2, Sun, Sunset, Moon } from "lucide-react";
 import Modal from "../ui/Modal";
-import type { Consultory } from "../../data/consultories";
+import type { Consultory } from "../../types/consultory";
+import type { BookingPeriod } from "../../types/booking";
+import { createBooking, listBookingsByConsultory } from "../../lib/api/bookings";
+import { getUserById } from "../../lib/api/users";
+import { useAuth } from "../../context/AuthContext";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -10,7 +14,7 @@ interface BookingModalProps {
   consultory: Consultory;
 }
 
-type Period = "morning" | "afternoon" | "evening";
+type Period = BookingPeriod;
 
 const periods: { id: Period; label: string; time: string; icon: React.ReactNode }[] = [
   { id: "morning", label: "Manhã", time: "8h – 12h", icon: <Sun size={18} /> },
@@ -23,9 +27,6 @@ const MONTH_NAMES = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 const DAY_NAMES = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
-// Dates booked (mock)
-const BOOKED_DATES = ["2026-04-17", "2026-04-22", "2026-04-25"];
 
 function getCalendarDays(year: number, month: number) {
   const firstDay = new Date(year, month, 1).getDay();
@@ -40,48 +41,152 @@ function toDateStr(year: number, month: number, day: number) {
 }
 
 export default function BookingModal({ isOpen, onClose, consultory }: BookingModalProps) {
+  const { currentUser } = useAuth();
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<Period | null>(null);
   const [step, setStep] = useState<"pick" | "confirm" | "success">("pick");
+  const [bookedMap, setBookedMap] = useState<Record<string, Period[]>>({});
+  const [error, setError] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const days = getCalendarDays(viewYear, viewMonth);
 
+  const availablePeriods = useMemo(
+    () => periods.filter((p) => consultory.periods[p.id]),
+    [consultory.periods]
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    let cancelled = false;
+
+    async function loadBookings() {
+      try {
+        const bookings = await listBookingsByConsultory(consultory.id);
+
+        const map: Record<string, Period[]> = {};
+        for (const booking of bookings) {
+          if (booking.status === "cancelled") continue;
+          map[booking.date] = map[booking.date] ?? [];
+          if (!map[booking.date].includes(booking.period)) {
+            map[booking.date].push(booking.period);
+          }
+        }
+
+        if (!cancelled) {
+          setBookedMap(map);
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          const message =
+            loadError instanceof Error
+              ? loadError.message
+              : "Não foi possível carregar a disponibilidade.";
+          setError(message);
+        }
+      }
+    }
+
+    void loadBookings();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [consultory.id, isOpen]);
+
   const prevMonth = () => {
-    if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
-    else setViewMonth(m => m - 1);
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else {
+      setViewMonth((m) => m - 1);
+    }
   };
+
   const nextMonth = () => {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
-    else setViewMonth(m => m + 1);
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else {
+      setViewMonth((m) => m + 1);
+    }
   };
 
   const isPast = (day: number) => {
     const d = new Date(viewYear, viewMonth, day);
     d.setHours(0, 0, 0, 0);
-    const t = new Date(); t.setHours(0, 0, 0, 0);
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
     return d < t;
   };
 
-  const isBooked = (day: number) => BOOKED_DATES.includes(toDateStr(viewYear, viewMonth, day));
+  const isBooked = (day: number) => {
+    const dateStr = toDateStr(viewYear, viewMonth, day);
+    const booked = bookedMap[dateStr] ?? [];
+    return availablePeriods.every((period) => booked.includes(period.id));
+  };
 
   const handleDayClick = (day: number) => {
     if (isPast(day) || isBooked(day)) return;
     setSelectedDate(toDateStr(viewYear, viewMonth, day));
     setSelectedPeriod(null);
+    setError("");
   };
 
-  const handleConfirm = () => setStep("confirm");
-  const handleBook = () => setStep("success");
+  const handleConfirm = () => {
+    setError("");
+    setStep("confirm");
+  };
+
+  const handleBook = async () => {
+    if (!currentUser) {
+      setError("Você precisa estar autenticado para reservar.");
+      return;
+    }
+    if (!selectedDate || !selectedPeriod) {
+      setError("Selecione data e período para continuar.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const owner = await getUserById(consultory.ownerId);
+
+      await createBooking({
+        consultory,
+        tenant: currentUser,
+        ownerName: owner?.name ?? "Proprietário",
+        date: selectedDate,
+        period: selectedPeriod,
+      });
+
+      setStep("success");
+    } catch (createError) {
+      const message =
+        createError instanceof Error ? createError.message : "Não foi possível concluir a reserva.";
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleClose = () => {
     onClose();
-    setTimeout(() => { setStep("pick"); setSelectedDate(null); setSelectedPeriod(null); }, 300);
+    setTimeout(() => {
+      setStep("pick");
+      setSelectedDate(null);
+      setSelectedPeriod(null);
+      setError("");
+      setBookedMap({});
+      setIsSubmitting(false);
+    }, 300);
   };
-
-  const availablePeriods = periods.filter(p => consultory.periods[p.id]);
 
   if (step === "success") {
     return (
@@ -113,7 +218,7 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
             <div className="flex justify-between">
               <span className="text-neutral-500">Período</span>
               <span className="font-medium text-neutral-800">
-                {periods.find(p => p.id === selectedPeriod)?.label}
+                {periods.find((p) => p.id === selectedPeriod)?.label}
               </span>
             </div>
             <div className="flex justify-between border-t border-neutral-200 pt-2 mt-2">
@@ -153,8 +258,8 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
               <div className="flex justify-between text-neutral-500">
                 <span>Período</span>
                 <span className="font-medium text-neutral-800">
-                  {periods.find(p => p.id === selectedPeriod)?.label}{" "}
-                  ({periods.find(p => p.id === selectedPeriod)?.time})
+                  {periods.find((p) => p.id === selectedPeriod)?.label}{" "}
+                  ({periods.find((p) => p.id === selectedPeriod)?.time})
                 </span>
               </div>
               <div className="flex justify-between border-t border-neutral-200 pt-2 font-bold">
@@ -166,6 +271,7 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
           <p className="text-xs text-neutral-400 text-center">
             Ao confirmar, o proprietário receberá sua solicitação para aprovação.
           </p>
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <div className="flex gap-3">
             <button
               onClick={() => setStep("pick")}
@@ -175,9 +281,10 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
             </button>
             <button
               onClick={handleBook}
-              className="flex-1 bg-primary-500 text-white rounded-xl py-3 text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
+              disabled={isSubmitting}
+              className="flex-1 bg-primary-500 text-white rounded-xl py-3 text-sm font-display font-semibold hover:bg-primary-600 transition-colors disabled:opacity-50"
             >
-              Confirmar reserva
+              {isSubmitting ? "Confirmando..." : "Confirmar reserva"}
             </button>
           </div>
         </div>
@@ -188,7 +295,6 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Agendar consultório" maxWidth="md">
       <div className="p-6 space-y-6">
-        {/* Calendar */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors">
@@ -202,7 +308,7 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
             </button>
           </div>
           <div className="grid grid-cols-7 gap-1 mb-2">
-            {DAY_NAMES.map(d => (
+            {DAY_NAMES.map((d) => (
               <div key={d} className="text-center text-xs text-neutral-400 font-medium py-1">
                 {d}
               </div>
@@ -237,31 +343,37 @@ export default function BookingModal({ isOpen, onClose, consultory }: BookingMod
           </div>
         </div>
 
-        {/* Period */}
         {selectedDate && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <p className="text-sm font-medium text-neutral-700 mb-3">Selecione o período</p>
             <div className="grid grid-cols-3 gap-3">
-              {availablePeriods.map(p => (
-                <button
-                  key={p.id}
-                  onClick={() => setSelectedPeriod(p.id)}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-colors ${
-                    selectedPeriod === p.id
-                      ? "border-primary-500 bg-primary-50 text-primary-600"
-                      : "border-neutral-200 text-neutral-600 hover:border-primary-300"
-                  }`}
-                >
-                  {p.icon}
-                  <span className="text-xs font-display font-semibold">{p.label}</span>
-                  <span className="text-xs text-neutral-400">{p.time}</span>
-                </button>
-              ))}
+              {availablePeriods.map((p) => {
+                const unavailable = (bookedMap[selectedDate] ?? []).includes(p.id);
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setSelectedPeriod(p.id)}
+                    disabled={unavailable}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-colors ${
+                      selectedPeriod === p.id
+                        ? "border-primary-500 bg-primary-50 text-primary-600"
+                        : unavailable
+                        ? "border-neutral-200 text-neutral-300 bg-neutral-50 cursor-not-allowed"
+                        : "border-neutral-200 text-neutral-600 hover:border-primary-300"
+                    }`}
+                  >
+                    {p.icon}
+                    <span className="text-xs font-display font-semibold">{p.label}</span>
+                    <span className="text-xs text-neutral-400">{p.time}</span>
+                  </button>
+                );
+              })}
             </div>
           </motion.div>
         )}
 
-        {/* Price + CTA */}
+        {error && <p className="text-sm text-red-500">{error}</p>}
+
         <div className="flex items-center justify-between border-t border-neutral-100 pt-4">
           <div>
             <span className="text-xs text-neutral-400">Valor por período</span>

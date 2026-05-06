@@ -1,4 +1,5 @@
 import { defineAuth } from "@aws-amplify/backend";
+import { autoConfirmUser } from "../functions/auto-confirm-user/resource";
 
 export const auth = defineAuth({
   loginWith: {
@@ -31,6 +32,9 @@ export const auth = defineAuth({
     },
   },
   groups: ["TENANT", "OWNER", "ADMIN"],
+  triggers: {
+    preSignUp: autoConfirmUser,
+  },
   passwordPolicy: {
     minLength: 8,
     requireLowercase: true,

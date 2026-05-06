@@ -1,0 +1,106 @@
+enum BookingPeriod {
+  MORNING
+  AFTERNOON
+  EVENING
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BLOCKED
+  BOOKED
+}
+
+type User @model @auth(rules: [{allow: owner, ownerField: "owner"},
+  {allow: groups, groups: ["ADMIN"]},
+  {allow: private, operations: [read]}])
+{
+  cognitoId: String! @primaryKey
+  name: String!
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  cro: String
+  specialty: String
+  verified: Boolean @default(value: "false")
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+  ownedConsultories: [Consultory] @hasMany(references: ["ownerId"])
+}
+
+type Consultory @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: owner, operations: [create, update, delete], ownerField: "owner"},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  name: String!
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  periodMorning: Boolean @default(value: "false")
+  periodAfternoon: Boolean @default(value: "false")
+  periodEvening: Boolean @default(value: "false")
+  featured: Boolean @default(value: "false")
+  isPremium: Boolean @default(value: "false")
+  premiumUntil: AWSDateTime
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+  whatsappNumber: String
+  ownerId: ID!
+  ownerProfile: User @belongsTo(references: ["ownerId"])
+  bookings: [Booking] @hasMany(references: ["consultoryId"])
+  availabilities: [Availability] @hasMany(references: ["consultoryId"])
+}
+
+type Booking @model @auth(rules: [{allow: private},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  consultoryName: String!
+  consultoryImage: AWSURL
+  tenantId: String!
+  tenantName: String!
+  ownerId: String!
+  ownerName: String!
+  date: AWSDate!
+  period: BookingPeriod!
+  status: BookingStatus!
+  price: Float!
+  reviewedByTenant: Boolean @default(value: "false")
+  reviewedByOwner: Boolean @default(value: "false")
+  inspectedCheckIn: Boolean @default(value: "false")
+  inspectedCheckOut: Boolean @default(value: "false")
+}
+
+type Availability @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: private, operations: [create, read, update, delete]},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  date: AWSDate!
+  period: BookingPeriod!
+  status: AvailabilityStatus!
+  blockedByBookingId: ID
+  blockedReason: String
+}
+
+enum UserRole {
+  TENANT
+  OWNER
+  ADMIN
+}

@@ -19,9 +19,10 @@ import Badge from "../components/ui/Badge";
 import Button from "../components/ui/Button";
 import BookingModal from "../components/modals/BookingModal";
 import StarRating from "../components/ui/StarRating";
-import { consultories as mockConsultories, type Consultory } from "../data/consultories";
-import { getConsultoryById } from "../lib/api/consultories";
-import { reviews } from "../data/reviews";
+import type { Consultory } from "../types/consultory";
+import { getConsultoryById, listRelatedConsultories } from "../lib/api/consultories";
+import { listReviewsByConsultory } from "../lib/api/reviews";
+import type { Review } from "../types/review";
 
 const periodIcons = {
   morning: <Sun size={15} className="text-accent-500" />,
@@ -37,6 +38,8 @@ const periodLabels = {
 export default function ConsultoryDetail() {
   const { id } = useParams<{ id: string }>();
   const [consultory, setConsultory] = useState<Consultory | null>(null);
+  const [others, setOthers] = useState<Consultory[]>([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
   const [bookingOpen, setBookingOpen] = useState(false);
@@ -52,8 +55,12 @@ export default function ConsultoryDetail() {
       }
 
       const item = await getConsultoryById(id);
+      const related = item ? await listRelatedConsultories(item.id, 3) : [];
+      const reviewItems = item ? await listReviewsByConsultory(item.id) : [];
       if (!cancelled) {
         setConsultory(item);
+        setOthers(related);
+        setReviews(reviewItems);
         setIsLoading(false);
       }
     }
@@ -91,9 +98,6 @@ export default function ConsultoryDetail() {
       </section>
     );
   }
-
-  const others = mockConsultories.filter((c) => c.id !== consultory.id).slice(0, 3);
-  const consultoryReviews = reviews.filter(r => r.type === "tenant-to-owner");
 
   const nextImage = () =>
     setCurrentImage((prev) => (prev + 1) % consultory.images.length);
@@ -190,25 +194,31 @@ export default function ConsultoryDetail() {
               ))}
             </div>
 
-            {/* Reviews section */}
-            {consultoryReviews.length > 0 && (
-              <div className="mt-8">
-                <div className="flex items-center gap-3 mb-5">
-                  <h3 className="font-display font-bold text-lg text-neutral-800">
-                    Avaliações
-                  </h3>
-                  <div className="flex items-center gap-1.5">
-                    <StarRating value={Math.round(consultory.rating)} readonly size={16} />
-                    <span className="font-display font-bold text-neutral-800">
-                      {consultory.rating}
-                    </span>
-                    <span className="text-sm text-neutral-400">
-                      ({consultory.totalReviews})
-                    </span>
-                  </div>
+            <div className="mt-8">
+              <div className="flex items-center gap-3 mb-5">
+                <h3 className="font-display font-bold text-lg text-neutral-800">
+                  Avaliações
+                </h3>
+                <div className="flex items-center gap-1.5">
+                  <StarRating value={Math.round(consultory.rating)} readonly size={16} />
+                  <span className="font-display font-bold text-neutral-800">
+                    {consultory.rating}
+                  </span>
+                  <span className="text-sm text-neutral-400">
+                    ({consultory.totalReviews})
+                  </span>
                 </div>
+              </div>
+
+              {reviews.length === 0 ? (
+                <div className="bg-neutral-50 rounded-2xl p-5">
+                  <p className="text-sm text-neutral-500">
+                    Ainda não há avaliações públicas para este consultório.
+                  </p>
+                </div>
+              ) : (
                 <div className="space-y-4">
-                  {consultoryReviews.slice(0, 3).map(review => (
+                  {reviews.slice(0, 3).map((review) => (
                     <div
                       key={review.id}
                       className="bg-neutral-50 rounded-2xl p-5"
@@ -216,13 +226,17 @@ export default function ConsultoryDetail() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-display font-bold text-xs">
-                            {review.fromUserName.split(" ").slice(0, 2).map(n => n[0]).join("")}
+                            {review.fromUserName
+                              .split(" ")
+                              .slice(0, 2)
+                              .map((n) => n[0])
+                              .join("")}
                           </div>
                           <div>
                             <p className="text-sm font-medium text-neutral-800">
                               {review.fromUserName}
                             </p>
-                            <p className="text-xs text-neutral-400">{review.date}</p>
+                            <p className="text-xs text-neutral-400">{review.reviewDate}</p>
                           </div>
                         </div>
                         <StarRating value={review.rating} readonly size={14} />
@@ -233,8 +247,8 @@ export default function ConsultoryDetail() {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Sidebar */}

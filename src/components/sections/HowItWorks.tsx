@@ -71,7 +71,7 @@ export default function HowItWorks() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
-    <section className="py-20 lg:py-30 bg-neutral-50">
+    <section className="py-20 lg:py-30 bg-primary-50">
       <Container>
         <SectionTitle
           title="Como funciona"
@@ -79,15 +79,15 @@ export default function HowItWorks() {
         />
 
         <div className="flex justify-center mb-12">
-          <div className="inline-flex bg-white rounded-2xl p-1.5 shadow-[0_4px_24px_rgba(0,102,204,0.08)]">
+          <div className="inline-flex bg-primary-100/70 rounded-2xl p-1.5 shadow-[0_4px_24px_rgba(0,102,204,0.08)] border border-primary-200/70">
             {tabs.map((tab, index) => (
               <button
                 key={tab.label}
                 onClick={() => setActiveTab(index)}
                 className={`px-6 py-3 rounded-xl text-sm font-display font-semibold transition-all ${
                   activeTab === index
-                    ? "bg-primary-500 text-white shadow-md"
-                    : "text-neutral-500 hover:text-neutral-700"
+                    ? "bg-primary-600 text-white shadow-md"
+                    : "text-primary-700 hover:text-primary-800"
                 }`}
               >
                 {tab.label}
@@ -108,12 +108,12 @@ export default function HowItWorks() {
             <motion.div
               key={step.title}
               variants={fadeInUp}
-              className="relative bg-white rounded-2xl p-6 shadow-[0_4px_24px_rgba(0,102,204,0.08)]"
+              className="relative bg-white rounded-2xl p-6 shadow-[0_4px_24px_rgba(0,102,204,0.08)] border border-primary-100/70"
             >
               <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center mb-4">
                 <step.icon className="text-primary-500" size={24} />
               </div>
-              <span className="absolute top-6 right-6 font-display font-bold text-4xl text-primary-50">
+              <span className="absolute top-6 right-6 font-display font-bold text-4xl text-primary-100">
                 {index + 1}
               </span>
               <h3 className="font-display font-bold text-lg text-neutral-800 mb-2">

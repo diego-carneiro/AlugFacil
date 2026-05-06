@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import {
@@ -20,14 +20,15 @@ import ReviewModal from "../../components/modals/ReviewModal";
 import InspectionModal from "../../components/modals/InspectionModal";
 import PremiumModal from "../../components/modals/PremiumModal";
 import {
-  bookings,
   periodLabels,
   statusColors,
   statusLabels,
   type Booking,
-} from "../../data/bookings";
-import { consultories } from "../../data/consultories";
+} from "../../types/booking";
+import type { Consultory } from "../../types/consultory";
 import { useAuth } from "../../context/AuthContext";
+import { listBookingsByOwner } from "../../lib/api/bookings";
+import { listConsultoriesByOwner } from "../../lib/api/consultories";
 
 const navItems = [
   { label: "Visão geral", path: "/dashboard/proprietario", icon: <Building2 size={18} /> },
@@ -42,29 +43,97 @@ export default function OwnerDashboard() {
   const [activeTab, setActiveTab] = useState<TabId>("agenda");
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const [inspectionBooking, setInspectionBooking] = useState<Booking | null>(null);
+  const [inspectionType, setInspectionType] = useState<"check-in" | "check-out">("check-in");
   const [premiumConsultory, setPremiumConsultory] = useState<string | null>(null);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [consultories, setConsultories] = useState<Consultory[]>([]);
+  const [refreshTick, setRefreshTick] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const ownerId = currentUser?.id ?? "owner-1";
-  const myBookings = bookings.filter(b => b.ownerId === ownerId);
-  const myConsultories = consultories.filter(c => c.ownerId === ownerId);
+  useEffect(() => {
+    const ownerId = currentUser?.id;
+    if (!ownerId) {
+      setBookings([]);
+      setConsultories([]);
+      setIsLoading(false);
+      return;
+    }
+    const safeOwnerId = ownerId;
 
-  const upcomingBookings = myBookings.filter(
-    b => b.status === "confirmed" || b.status === "pending"
+    let cancelled = false;
+
+    async function loadData() {
+      try {
+        const [bookingsData, consultoriesData] = await Promise.all([
+          listBookingsByOwner(safeOwnerId),
+          listConsultoriesByOwner(safeOwnerId),
+        ]);
+
+        if (!cancelled) {
+          setBookings(bookingsData);
+          setConsultories(consultoriesData);
+          setError("");
+        }
+      } catch (loadError) {
+        if (!cancelled) {
+          const message =
+            loadError instanceof Error ? loadError.message : "Não foi possível carregar o painel.";
+          setError(message);
+          setBookings([]);
+          setConsultories([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentUser?.id, refreshTick]);
+
+  const upcomingBookings = useMemo(
+    () => bookings.filter((b) => b.status === "confirmed" || b.status === "pending"),
+    [bookings]
   );
-  const completedBookings = myBookings.filter(b => b.status === "completed");
-  const monthRevenue = completedBookings.reduce((sum, b) => sum + b.price, 0);
-  const pendingReview = myBookings.filter(b => b.status === "completed" && !b.reviewedByOwner);
+
+  const completedBookings = useMemo(
+    () => bookings.filter((b) => b.status === "completed"),
+    [bookings]
+  );
+
+  const monthRevenue = useMemo(
+    () => completedBookings.reduce((sum, b) => sum + b.price, 0),
+    [completedBookings]
+  );
+
+  const pendingReview = useMemo(
+    () => bookings.filter((b) => b.status === "completed" && !b.reviewedByOwner),
+    [bookings]
+  );
 
   const tabs: { id: TabId; label: string; count?: number }[] = [
     { id: "agenda", label: "Agenda", count: upcomingBookings.length },
-    { id: "salas", label: "Minhas salas", count: myConsultories.length },
-    { id: "extrato", label: "Extrato", count: pendingReview.length > 0 ? pendingReview.length : undefined },
+    { id: "salas", label: "Minhas salas", count: consultories.length },
+    {
+      id: "extrato",
+      label: "Extrato",
+      count: pendingReview.length > 0 ? pendingReview.length : undefined,
+    },
   ];
 
   return (
-    <DashboardLayout navItems={navItems} title="Painel do Proprietário">
+    <DashboardLayout
+      navItems={navItems}
+      title="Painel do Proprietário"
+      titleClassName="font-normal"
+    >
       <div className="space-y-8">
-        {/* Greeting */}
         <div>
           <h2 className="text-2xl font-display font-bold text-neutral-900">
             Olá, {currentUser?.name?.split(" ")[0]} 👋
@@ -74,18 +143,17 @@ export default function OwnerDashboard() {
           </p>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<Building2 size={20} />}
             label="Salas cadastradas"
-            value={myConsultories.length}
+            value={consultories.length}
             color="blue"
           />
           <StatCard
             icon={<CalendarDays size={20} />}
             label="Reservas este mês"
-            value={myBookings.length}
+            value={bookings.length}
             color="accent"
           />
           <StatCard
@@ -104,10 +172,15 @@ export default function OwnerDashboard() {
           />
         </div>
 
-        {/* Tabs */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {error}
+          </div>
+        )}
+
         <div>
           <div className="flex gap-1 bg-neutral-100 p-1 rounded-xl w-fit mb-6 flex-wrap">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -127,213 +200,210 @@ export default function OwnerDashboard() {
             ))}
           </div>
 
-          {/* Agenda */}
-          {activeTab === "agenda" && (
-            <div className="space-y-4">
-              {myBookings.length === 0 ? (
-                <EmptyState message="Nenhuma reserva para seus consultórios ainda." />
-              ) : (
-                myBookings.map(booking => (
-                  <OwnerBookingCard
-                    key={booking.id}
-                    booking={booking}
-                    onReview={() => setReviewBooking(booking)}
-                    onInspection={() => {
-                      setInspectionBooking(booking);
-                    }}
-                  />
-                ))
+          {isLoading ? (
+            <EmptyState message="Carregando painel..." />
+          ) : (
+            <>
+              {activeTab === "agenda" && (
+                <div className="space-y-4">
+                  {bookings.length === 0 ? (
+                    <EmptyState message="Nenhuma reserva para seus consultórios ainda." />
+                  ) : (
+                    bookings.map((booking) => (
+                      <OwnerBookingCard
+                        key={booking.id}
+                        booking={booking}
+                        onReview={() => setReviewBooking(booking)}
+                        onInspection={(type) => {
+                          setInspectionBooking(booking);
+                          setInspectionType(type);
+                        }}
+                      />
+                    ))
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {/* My rooms */}
-          {activeTab === "salas" && (
-            <div className="space-y-4">
-              <div className="flex justify-end">
-                <Link
-                  to="/cadastrar"
-                  className="flex items-center gap-2 bg-primary-500 text-white rounded-xl px-4 py-2.5 text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
-                >
-                  <Plus size={16} />
-                  Cadastrar sala
-                </Link>
-              </div>
-              {myConsultories.length === 0 ? (
-                <EmptyState message="Nenhuma sala cadastrada ainda." cta="Cadastrar primeiro consultório" href="/cadastrar" />
-              ) : (
-                myConsultories.map(c => (
-                  <motion.div
-                    key={c.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-5 flex flex-col sm:flex-row gap-4"
-                  >
-                    <img
-                      src={c.images[0]}
-                      alt={c.name}
-                      className="w-full sm:w-24 h-36 sm:h-24 rounded-xl object-cover shrink-0"
+              {activeTab === "salas" && (
+                <div className="space-y-4">
+                  <div className="flex justify-end">
+                    <Link
+                      to="/cadastrar"
+                      className="flex items-center gap-2 bg-primary-500 text-white rounded-xl px-4 py-2.5 text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
+                    >
+                      <Plus size={16} />
+                      Cadastrar sala
+                    </Link>
+                  </div>
+                  {consultories.length === 0 ? (
+                    <EmptyState
+                      message="Nenhuma sala cadastrada ainda."
+                      cta="Cadastrar primeiro consultório"
+                      href="/cadastrar"
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <Link
-                          to={`/consultorios/${c.id}`}
-                          className="font-display font-bold text-neutral-800 hover:text-primary-500 transition-colors"
-                        >
-                          {c.name}
-                        </Link>
-                        {c.isPremium && (
-                          <span className="flex items-center gap-1 bg-accent-50 text-accent-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
-                            <Zap size={11} />
-                            Premium
-                          </span>
-                        )}
+                  ) : (
+                    consultories.map((c) => (
+                      <motion.div
+                        key={c.id}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-5 flex flex-col sm:flex-row gap-4"
+                      >
+                        <img
+                          src={c.images[0]}
+                          alt={c.name}
+                          className="w-full sm:w-24 h-36 sm:h-24 rounded-xl object-cover shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <Link
+                              to={`/consultorios/${c.id}`}
+                              className="font-display font-bold text-neutral-800 hover:text-primary-500 transition-colors"
+                            >
+                              {c.name}
+                            </Link>
+                            {c.isPremium && (
+                              <span className="flex items-center gap-1 bg-accent-50 text-accent-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
+                                <Zap size={11} />
+                                Premium
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-neutral-500 flex items-center gap-1 mb-2">
+                            <MapPin size={14} />
+                            {c.neighborhood}, {c.city}
+                          </p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-3">
+                            <span className="flex items-center gap-1">
+                              <Star size={13} className="text-accent-400" />
+                              {c.rating} ({c.totalReviews} avaliações)
+                            </span>
+                            <span className="font-display font-bold text-primary-500">
+                              R$ {c.pricePerPeriod}/período
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button className="flex items-center gap-1.5 text-xs border border-neutral-200 text-neutral-600 rounded-lg px-3 py-1.5 hover:bg-neutral-50 transition-colors">
+                              <Edit3 size={13} />
+                              Editar
+                            </button>
+                            {!c.isPremium && (
+                              <button
+                                onClick={() => setPremiumConsultory(c.name)}
+                                className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-1.5 hover:bg-accent-100 transition-colors"
+                              >
+                                <Zap size={13} />
+                                Destacar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {activeTab === "extrato" && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-xl p-5 shadow-[0_4px_24px_rgba(0,102,204,0.08)]">
+                      <p className="text-xs text-neutral-400 mb-1">Total bruto</p>
+                      <p className="font-display font-bold text-xl text-neutral-900">R$ {monthRevenue}</p>
+                    </div>
+                    <div className="bg-white rounded-xl p-5 shadow-[0_4px_24px_rgba(0,102,204,0.08)]">
+                      <p className="text-xs text-neutral-400 mb-1">Comissão AlugFácil (10%)</p>
+                      <p className="font-display font-bold text-xl text-red-500">– R$ {Math.round(monthRevenue * 0.1)}</p>
+                    </div>
+                    <div className="bg-primary-50 rounded-xl p-5">
+                      <p className="text-xs text-primary-500 mb-1">Valor líquido</p>
+                      <p className="font-display font-bold text-xl text-primary-600">R$ {Math.round(monthRevenue * 0.9)}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] overflow-hidden">
+                    <div className="px-5 py-4 border-b border-neutral-100">
+                      <p className="font-display font-semibold text-neutral-800">Transações</p>
+                    </div>
+                    {completedBookings.length === 0 ? (
+                      <div className="p-8 text-center text-neutral-400 text-sm">
+                        Nenhuma transação concluída ainda.
                       </div>
-                      <p className="text-sm text-neutral-500 flex items-center gap-1 mb-2">
-                        <MapPin size={14} />
-                        {c.neighborhood}, {c.city}
-                      </p>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-3">
-                        <span className="flex items-center gap-1">
-                          <Star size={13} className="text-accent-400" />
-                          {c.rating} ({c.totalReviews} avaliações)
-                        </span>
-                        <span className="font-display font-bold text-primary-500">
-                          R$ {c.pricePerPeriod}/período
-                        </span>
+                    ) : (
+                      <div className="divide-y divide-neutral-50">
+                        {bookings.filter((b) => b.status !== "pending").map((b) => (
+                          <div key={b.id} className="flex items-center gap-4 px-5 py-4">
+                            <div
+                              className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                                b.status === "completed"
+                                  ? "bg-green-50"
+                                  : b.status === "cancelled"
+                                  ? "bg-red-50"
+                                  : "bg-primary-50"
+                              }`}
+                            >
+                              {b.status === "completed" ? (
+                                <CheckCircle2 size={18} className="text-green-500" />
+                              ) : b.status === "cancelled" ? (
+                                <XCircle size={18} className="text-red-400" />
+                              ) : (
+                                <Clock size={18} className="text-primary-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-neutral-800 truncate">{b.consultoryName}</p>
+                              <p className="text-xs text-neutral-400">
+                                {b.tenantName} · {b.date} · {periodLabels[b.period]}
+                              </p>
+                            </div>
+                            <div className="text-right shrink-0">
+                              {b.status === "completed" ? (
+                                <>
+                                  <p className="text-sm font-display font-bold text-green-600">+ R$ {Math.round(b.price * 0.9)}</p>
+                                  <p className="text-xs text-neutral-400">– R$ {Math.round(b.price * 0.1)} taxa</p>
+                                </>
+                              ) : (
+                                <p className={`text-sm font-medium ${statusColors[b.status]} px-2 py-0.5 rounded-full`}>
+                                  {statusLabels[b.status]}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="flex gap-2">
-                        <button className="flex items-center gap-1.5 text-xs border border-neutral-200 text-neutral-600 rounded-lg px-3 py-1.5 hover:bg-neutral-50 transition-colors">
-                          <Edit3 size={13} />
-                          Editar
-                        </button>
-                        {!c.isPremium && (
-                          <button
-                            onClick={() => setPremiumConsultory(c.name)}
-                            className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-1.5 hover:bg-accent-100 transition-colors"
+                    )}
+                  </div>
+
+                  {pendingReview.length > 0 && (
+                    <div>
+                      <p className="font-display font-semibold text-neutral-800 mb-3">Avaliações pendentes</p>
+                      <div className="space-y-3">
+                        {pendingReview.map((booking) => (
+                          <div
+                            key={booking.id}
+                            className="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-4 flex items-center gap-4"
                           >
-                            <Zap size={13} />
-                            Destacar
-                          </button>
-                        )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-neutral-800 truncate">{booking.tenantName}</p>
+                              <p className="text-xs text-neutral-400">
+                                {booking.consultoryName} · {booking.date}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => setReviewBooking(booking)}
+                              className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-2 hover:bg-accent-100 transition-colors shrink-0"
+                            >
+                              <Star size={13} />
+                              Avaliar locatário
+                            </button>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
-          )}
-
-          {/* Extrato */}
-          {activeTab === "extrato" && (
-            <div className="space-y-6">
-              {/* Summary */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-xl p-5 shadow-[0_4px_24px_rgba(0,102,204,0.08)]">
-                  <p className="text-xs text-neutral-400 mb-1">Total bruto</p>
-                  <p className="font-display font-bold text-xl text-neutral-900">
-                    R$ {myBookings.filter(b => b.status === "completed").reduce((s, b) => s + b.price, 0)}
-                  </p>
-                </div>
-                <div className="bg-white rounded-xl p-5 shadow-[0_4px_24px_rgba(0,102,204,0.08)]">
-                  <p className="text-xs text-neutral-400 mb-1">Comissão AlugFácil (10%)</p>
-                  <p className="font-display font-bold text-xl text-red-500">
-                    – R$ {Math.round(myBookings.filter(b => b.status === "completed").reduce((s, b) => s + b.price, 0) * 0.1)}
-                  </p>
-                </div>
-                <div className="bg-primary-50 rounded-xl p-5">
-                  <p className="text-xs text-primary-500 mb-1">Valor líquido</p>
-                  <p className="font-display font-bold text-xl text-primary-600">
-                    R$ {Math.round(myBookings.filter(b => b.status === "completed").reduce((s, b) => s + b.price, 0) * 0.9)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Transaction list */}
-              <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] overflow-hidden">
-                <div className="px-5 py-4 border-b border-neutral-100">
-                  <p className="font-display font-semibold text-neutral-800">Transações</p>
-                </div>
-                {myBookings.filter(b => b.status === "completed").length === 0 ? (
-                  <div className="p-8 text-center text-neutral-400 text-sm">
-                    Nenhuma transação concluída ainda.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-neutral-50">
-                    {myBookings.filter(b => b.status !== "pending").map(b => (
-                      <div key={b.id} className="flex items-center gap-4 px-5 py-4">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                          b.status === "completed" ? "bg-green-50" : b.status === "cancelled" ? "bg-red-50" : "bg-primary-50"
-                        }`}>
-                          {b.status === "completed" ? (
-                            <CheckCircle2 size={18} className="text-green-500" />
-                          ) : b.status === "cancelled" ? (
-                            <XCircle size={18} className="text-red-400" />
-                          ) : (
-                            <Clock size={18} className="text-primary-400" />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-800 truncate">
-                            {b.consultoryName}
-                          </p>
-                          <p className="text-xs text-neutral-400">
-                            {b.tenantName} · {b.date} · {periodLabels[b.period]}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          {b.status === "completed" ? (
-                            <>
-                              <p className="text-sm font-display font-bold text-green-600">
-                                + R$ {Math.round(b.price * 0.9)}
-                              </p>
-                              <p className="text-xs text-neutral-400">– R$ {Math.round(b.price * 0.1)} taxa</p>
-                            </>
-                          ) : (
-                            <p className={`text-sm font-medium ${statusColors[b.status]} px-2 py-0.5 rounded-full`}>
-                              {statusLabels[b.status]}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Pending reviews */}
-              {pendingReview.length > 0 && (
-                <div>
-                  <p className="font-display font-semibold text-neutral-800 mb-3">
-                    Avaliações pendentes
-                  </p>
-                  <div className="space-y-3">
-                    {pendingReview.map(booking => (
-                      <div
-                        key={booking.id}
-                        className="bg-white rounded-xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-4 flex items-center gap-4"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-800 truncate">
-                            {booking.tenantName}
-                          </p>
-                          <p className="text-xs text-neutral-400">
-                            {booking.consultoryName} · {booking.date}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setReviewBooking(booking)}
-                          className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-2 hover:bg-accent-100 transition-colors shrink-0"
-                        >
-                          <Star size={13} />
-                          Avaliar locatário
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                  )}
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -344,6 +414,7 @@ export default function OwnerDashboard() {
           onClose={() => setReviewBooking(null)}
           booking={reviewBooking}
           reviewerRole="owner"
+          onSubmitted={() => setRefreshTick((value) => value + 1)}
         />
       )}
 
@@ -352,7 +423,8 @@ export default function OwnerDashboard() {
           isOpen={true}
           onClose={() => setInspectionBooking(null)}
           booking={inspectionBooking}
-          type="check-out"
+          type={inspectionType}
+          onSubmitted={() => setRefreshTick((value) => value + 1)}
         />
       )}
 
@@ -406,9 +478,7 @@ function OwnerBookingCard({
           <span className="text-neutral-700 font-medium">{booking.tenantName}</span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="font-display font-bold text-primary-500">
-            R$ {booking.price}
-          </span>
+          <span className="font-display font-bold text-primary-500">R$ {booking.price}</span>
           <div className="flex gap-2">
             {booking.status === "confirmed" && (
               <>
@@ -423,6 +493,7 @@ function OwnerBookingCard({
                   onClick={() => onInspection("check-out")}
                   className="flex items-center gap-1.5 text-xs border border-neutral-300 text-neutral-600 rounded-lg px-3 py-1.5 hover:bg-neutral-50 transition-colors"
                 >
+                  <CheckCircle2 size={14} />
                   Confirmar check-out
                 </button>
               </>

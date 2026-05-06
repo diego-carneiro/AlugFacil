@@ -14,12 +14,14 @@ interface DashboardLayoutProps {
   children: ReactNode;
   navItems: NavItem[];
   title: string;
+  titleClassName?: string;
 }
 
 export default function DashboardLayout({
   children,
   navItems,
   title,
+  titleClassName,
 }: DashboardLayoutProps) {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
@@ -44,6 +46,9 @@ export default function DashboardLayout({
       : currentUser?.role === "owner"
       ? "Proprietário"
       : "Administrador";
+
+  const profilePath =
+    currentUser?.role === "owner" ? "/consultorios" : "/profile";
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -82,19 +87,29 @@ export default function DashboardLayout({
         })}
       </nav>
 
-      {/* User info */}
+      {/* User info + Sair */}
       <div className="p-4 border-t border-neutral-100">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-display font-bold text-sm shrink-0">
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-neutral-800 truncate">
-              {currentUser?.name}
-            </p>
-            <p className="text-xs text-neutral-400">{roleLabel}</p>
-          </div>
+        <div className="mb-5 space-y-3">
+          <Link
+            to={profilePath}
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-neutral-50 transition-colors group"
+          >
+            <div className="w-9 h-9 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-display font-bold text-sm shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-neutral-800 truncate group-hover:text-primary-600 transition-colors">
+                {currentUser?.name}
+              </p>
+              <p className="text-xs text-neutral-400">{roleLabel}</p>
+            </div>
+            <ChevronRight size={14} className="text-neutral-300 shrink-0" />
+          </Link>
+
+          <div className="h-px bg-linear-to-r from-transparent via-neutral-200 to-transparent" />
         </div>
+
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm text-neutral-500 hover:bg-red-50 hover:text-red-500 transition-colors"
@@ -148,11 +163,16 @@ export default function DashboardLayout({
           >
             <Menu size={22} />
           </button>
-          <h1 className="font-display font-bold text-neutral-900 text-lg">{title}</h1>
+          <h1 className={`font-display text-neutral-900 text-lg ${titleClassName ?? "font-bold"}`}>
+            {title}
+          </h1>
           <div className="ml-auto flex items-center gap-2 lg:hidden">
-            <div className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-display font-bold text-xs">
+            <Link
+              to={profilePath}
+              className="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center font-display font-bold text-xs hover:bg-primary-200 transition-colors"
+            >
               {initials}
-            </div>
+            </Link>
           </div>
         </header>
 

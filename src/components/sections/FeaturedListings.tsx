@@ -10,10 +10,14 @@ import Button from "../ui/Button";
 import {
   listFeaturedConsultories,
 } from "../../lib/api/consultories";
-import type { Consultory } from "../../data/consultories";
+import type { Consultory } from "../../types/consultory";
 import { staggerContainer, fadeInUp, viewportConfig } from "../../hooks/useScrollReveal";
 
-export default function FeaturedListings() {
+type FeaturedListingsProps = {
+  className?: string;
+};
+
+export default function FeaturedListings({ className = "" }: FeaturedListingsProps) {
   const [featured, setFeatured] = useState<Consultory[]>([]);
 
   useEffect(() => {
@@ -34,11 +38,15 @@ export default function FeaturedListings() {
   }, []);
 
   return (
-    <section className="py-20 lg:py-30">
+    <section
+      className={`py-20 lg:py-30 bg-primary-800 text-white ${className}`.trim()}
+    >
       <Container>
         <SectionTitle
           title="Consultórios em destaque"
           subtitle="Espaços prontos para você atender seus pacientes"
+          titleClassName="text-white"
+          subtitleClassName="text-primary-200"
         />
 
         <motion.div
@@ -51,7 +59,7 @@ export default function FeaturedListings() {
           {featured.map((consultory) => (
             <motion.div key={consultory.id} variants={fadeInUp}>
               <Link to={`/consultorios/${consultory.id}`}>
-                <Card>
+                <Card className="border border-primary-600/40 bg-primary-700/50 shadow-[0_6px_28px_rgba(0,0,0,0.22)]">
                   <div className="aspect-4/3 overflow-hidden relative">
                     <img
                       src={consultory.images[0]}
@@ -68,36 +76,40 @@ export default function FeaturedListings() {
                   </div>
                   <div className="p-6">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <h3 className="font-display font-bold text-lg text-neutral-800 leading-snug">
+                      <h3 className="font-display font-bold text-lg text-white leading-snug">
                         {consultory.name}
                       </h3>
-                      <div className="flex items-center gap-1 text-xs text-neutral-500 shrink-0">
+                      <div className="flex items-center gap-1 text-xs text-primary-100 shrink-0">
                         <Star size={12} className="text-accent-400 fill-accent-400" />
                         {consultory.rating}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 text-neutral-500 text-sm mb-4">
+                    <div className="flex items-center gap-1 text-primary-200 text-sm mb-4">
                       <MapPin size={14} />
                       {consultory.neighborhood}, {consultory.city}
                     </div>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {consultory.equipment.slice(0, 4).map((eq) => (
-                        <Badge key={eq} variant="outline">
+                        <Badge
+                          key={eq}
+                          variant="outline"
+                          className="border-primary-500/50 text-primary-100 bg-primary-700/60"
+                        >
                           {eq}
                         </Badge>
                       ))}
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-sm text-neutral-400">a partir de</span>
-                        <p className="font-display font-bold text-xl text-primary-500">
+                        <span className="text-sm text-primary-200">a partir de</span>
+                        <p className="font-display font-bold text-xl text-white">
                           R$ {consultory.pricePerPeriod}
-                          <span className="text-sm font-normal text-neutral-400">
+                          <span className="text-sm font-normal text-primary-200">
                             {" "}/ período
                           </span>
                         </p>
                       </div>
-                      <span className="text-primary-500 text-sm font-medium flex items-center gap-1">
+                      <span className="text-accent-300 text-sm font-medium flex items-center gap-1">
                         Ver detalhes <ArrowRight size={14} />
                       </span>
                     </div>
@@ -109,7 +121,7 @@ export default function FeaturedListings() {
         </motion.div>
 
         <div className="text-center mt-12">
-          <Button href="/consultorios" variant="secondary" size="lg">
+          <Button href="/consultorios" variant="accent" size="lg">
             Ver todos os consultórios
             <ArrowRight size={18} />
           </Button>

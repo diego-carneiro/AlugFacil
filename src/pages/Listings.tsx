@@ -5,7 +5,7 @@ import { MapPin, ArrowRight, Search, Star, SlidersHorizontal, X, Zap } from "luc
 import Container from "../components/ui/Container";
 import Card from "../components/ui/Card";
 import Badge from "../components/ui/Badge";
-import type { Consultory } from "../data/consultories";
+import type { Consultory } from "../types/consultory";
 import { listConsultories } from "../lib/api/consultories";
 import { staggerContainer, fadeInUp, viewportConfig } from "../hooks/useScrollReveal";
 

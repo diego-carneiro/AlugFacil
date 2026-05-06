@@ -4,12 +4,7 @@ import { motion } from "motion/react";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import type { UserRole } from "../../types/user";
-
-const DEMO_ACCOUNTS: { label: string; role: UserRole; email: string }[] = [
-  { label: "Entrar como Dentista", role: "tenant", email: "ana.lima@email.com" },
-  { label: "Entrar como Proprietário", role: "owner", email: "roberto.alves@email.com" },
-  { label: "Entrar como Admin", role: "admin", email: "admin@alugfacil.com.br" },
-];
+import { setPendingConfirmation } from "../../lib/auth/pendingConfirmation";
 
 const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
   tenant: "/dashboard/locatario",
@@ -18,21 +13,13 @@ const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
 };
 
 export default function Login() {
-  const { login, loginAsDemo, authMode } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleDemo = async (role: UserRole, demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword("demo1234");
-    setError("");
-    await loginAsDemo(role);
-    navigate(DASHBOARD_BY_ROLE[role]);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +31,13 @@ export default function Login() {
       navigate(DASHBOARD_BY_ROLE[user.role]);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Nao foi possivel entrar.";
+
+      if (message.includes("ainda não foi confirmada")) {
+        setPendingConfirmation({ email });
+        navigate("/confirmar-cadastro");
+        return;
+      }
+
       setError(message);
     } finally {
       setIsSubmitting(false);
@@ -73,12 +67,6 @@ export default function Login() {
           <p className="text-neutral-500 mb-8">
             Entre na sua conta para gerenciar suas reservas.
           </p>
-
-          {authMode === "mock" && (
-            <div className="mb-6 rounded-xl border border-accent-200 bg-accent-50 px-4 py-3 text-sm text-accent-700">
-              Modo local ativo. Enquanto o sandbox AWS nao estiver configurado, o login usa dados de demo.
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
@@ -140,30 +128,6 @@ export default function Login() {
               <p className="text-sm text-red-500">{error}</p>
             )}
           </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-200" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-neutral-50 px-3 text-xs text-neutral-400">
-                ou acesse uma conta demo
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            {DEMO_ACCOUNTS.map(a => (
-              <motion.button
-                key={a.role}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleDemo(a.role, a.email)}
-                className="w-full border border-neutral-200 text-neutral-700 rounded-xl py-2.5 text-sm font-medium hover:border-primary-300 hover:bg-primary-50 hover:text-primary-600 transition-colors"
-              >
-                {a.label}
-              </motion.button>
-            ))}
-          </div>
 
           <p className="text-center text-sm text-neutral-500 mt-8">
             Não tem conta?{" "}
