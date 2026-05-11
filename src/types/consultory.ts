@@ -1,6 +1,7 @@
 export interface Consultory {
   id: string;
   name: string;
+  publicSlug?: string;
   neighborhood: string;
   city: string;
   state: string;
@@ -11,6 +12,8 @@ export interface Consultory {
   equipment: string[];
   imageKeys?: string[];
   images: string[];
+  logoKey?: string;
+  logoUrl?: string;
   whatsappNumber: string;
   featured: boolean;
   ownerId: string;

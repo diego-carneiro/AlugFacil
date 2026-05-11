@@ -26,6 +26,10 @@ export const auth = defineAuth({
       dataType: "String",
       mutable: true,
     },
+    "custom:taxId": {
+      dataType: "String",
+      mutable: true,
+    },
     "custom:verified": {
       dataType: "String",
       mutable: true,

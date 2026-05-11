@@ -401,6 +401,20 @@
              "Arn"
             ]
            },
+           "/public/users/*"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "alugfacilStorageBucket0F237832",
+             "Arn"
+            ]
+           },
            "/inspections/${cognito-identity.amazonaws.com:sub}/*"
           ]
          ]

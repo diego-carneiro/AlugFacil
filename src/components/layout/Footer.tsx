@@ -38,8 +38,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/cadastrar" className="hover:text-white transition-colors">
-                  Cadastrar Consultório
+                <Link to="/cadastro" className="hover:text-white transition-colors">
+                  Criar conta de proprietário
                 </Link>
               </li>
               <li>

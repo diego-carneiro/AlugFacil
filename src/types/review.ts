@@ -1,4 +1,4 @@
-export type ReviewType = "tenant_to_owner" | "owner_to_tenant";
+export type ReviewType = "tenant_to_consultory" | "owner_to_tenant";
 
 export interface Review {
   id: string;

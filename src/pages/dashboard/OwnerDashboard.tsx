@@ -6,19 +6,22 @@ import {
   CalendarDays,
   TrendingUp,
   Star,
-  Plus,
-  Zap,
   Clock,
   CheckCircle2,
   XCircle,
-  MapPin,
   Edit3,
+  UserCircle,
+  Plus,
+  Sun,
+  Sunset,
+  Moon,
 } from "lucide-react";
 import DashboardLayout from "../../components/dashboard/DashboardLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import ReviewModal from "../../components/modals/ReviewModal";
 import InspectionModal from "../../components/modals/InspectionModal";
 import PremiumModal from "../../components/modals/PremiumModal";
+import CreateRoomModal from "../../components/modals/CreateRoomModal";
 import {
   periodLabels,
   statusColors,
@@ -26,14 +29,16 @@ import {
   type Booking,
 } from "../../types/booking";
 import type { Consultory } from "../../types/consultory";
+import type { Room } from "../../types/room";
 import { useAuth } from "../../context/AuthContext";
 import { listBookingsByOwner } from "../../lib/api/bookings";
 import { listConsultoriesByOwner } from "../../lib/api/consultories";
+import { listRoomsByConsultory } from "../../lib/api/rooms";
 
 const navItems = [
   { label: "Visão geral", path: "/dashboard/proprietario", icon: <Building2 size={18} /> },
   { label: "Minhas salas", path: "/consultorios", icon: <Building2 size={18} /> },
-  { label: "Cadastrar sala", path: "/cadastrar", icon: <Plus size={18} /> },
+  { label: "Perfil do Consultório", path: "/dashboard/proprietario/perfil", icon: <UserCircle size={18} /> },
 ];
 
 type TabId = "agenda" | "salas" | "extrato";
@@ -47,6 +52,8 @@ export default function OwnerDashboard() {
   const [premiumConsultory, setPremiumConsultory] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [consultories, setConsultories] = useState<Consultory[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -74,6 +81,11 @@ export default function OwnerDashboard() {
           setBookings(bookingsData);
           setConsultories(consultoriesData);
           setError("");
+        }
+
+        if (!cancelled && consultoriesData.length > 0) {
+          const roomsData = await listRoomsByConsultory(consultoriesData[0].id);
+          if (!cancelled) setRooms(roomsData);
         }
       } catch (loadError) {
         if (!cancelled) {
@@ -119,7 +131,7 @@ export default function OwnerDashboard() {
 
   const tabs: { id: TabId; label: string; count?: number }[] = [
     { id: "agenda", label: "Agenda", count: upcomingBookings.length },
-    { id: "salas", label: "Minhas salas", count: consultories.length },
+    { id: "salas", label: "Minhas salas", count: rooms.length },
     {
       id: "extrato",
       label: "Extrato",
@@ -127,11 +139,22 @@ export default function OwnerDashboard() {
     },
   ];
 
+  const primaryConsultory = consultories[0];
+
   return (
     <DashboardLayout
       navItems={navItems}
       title="Painel do Proprietário"
-      titleClassName="font-normal"
+      titleClassName="!font-normal"
+      profileOverride={
+        primaryConsultory
+          ? {
+              name: primaryConsultory.name,
+              avatarUrl: primaryConsultory.logoUrl,
+              subtitle: "Proprietário",
+            }
+          : undefined
+      }
     >
       <div className="space-y-8">
         <div>
@@ -147,7 +170,7 @@ export default function OwnerDashboard() {
           <StatCard
             icon={<Building2 size={20} />}
             label="Salas cadastradas"
-            value={consultories.length}
+            value={rooms.length}
             color="blue"
           />
           <StatCard
@@ -226,76 +249,94 @@ export default function OwnerDashboard() {
 
               {activeTab === "salas" && (
                 <div className="space-y-4">
-                  <div className="flex justify-end">
-                    <Link
-                      to="/cadastrar"
-                      className="flex items-center gap-2 bg-primary-500 text-white rounded-xl px-4 py-2.5 text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
-                    >
-                      <Plus size={16} />
-                      Cadastrar sala
-                    </Link>
-                  </div>
-                  {consultories.length === 0 ? (
-                    <EmptyState
-                      message="Nenhuma sala cadastrada ainda."
-                      cta="Cadastrar primeiro consultório"
-                      href="/cadastrar"
-                    />
+                  {primaryConsultory && (
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-neutral-500">
+                        Salas de{" "}
+                        <span className="font-medium text-neutral-700">{primaryConsultory.name}</span>
+                      </p>
+                      <button
+                        onClick={() => setShowCreateRoom(true)}
+                        className="flex items-center gap-1.5 text-sm bg-primary-500 text-white rounded-xl px-4 py-2 hover:bg-primary-600 transition-colors font-medium"
+                      >
+                        <Plus size={15} />
+                        Adicionar sala
+                      </button>
+                    </div>
+                  )}
+                  {rooms.length === 0 ? (
+                    <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-10 text-center">
+                      <Building2 size={36} className="mx-auto mb-3 text-neutral-300" />
+                      <p className="text-neutral-500 text-sm mb-1">Nenhuma sala cadastrada ainda.</p>
+                      <p className="text-neutral-400 text-xs">
+                        Adicione salas ao seu consultório para receber reservas.
+                      </p>
+                    </div>
                   ) : (
-                    consultories.map((c) => (
+                    rooms.map((room) => (
                       <motion.div
-                        key={c.id}
+                        key={room.id}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-5 flex flex-col sm:flex-row gap-4"
                       >
                         <img
-                          src={c.images[0]}
-                          alt={c.name}
+                          src={room.images[0]}
+                          alt={room.name}
                           className="w-full sm:w-24 h-36 sm:h-24 rounded-xl object-cover shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <Link
-                              to={`/consultorios/${c.id}`}
-                              className="font-display font-bold text-neutral-800 hover:text-primary-500 transition-colors"
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <p className="font-display font-bold text-neutral-800">{room.name}</p>
+                            <span
+                              className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 ${
+                                room.available
+                                  ? "bg-green-50 text-green-600"
+                                  : "bg-neutral-100 text-neutral-500"
+                              }`}
                             >
-                              {c.name}
-                            </Link>
-                            {c.isPremium && (
-                              <span className="flex items-center gap-1 bg-accent-50 text-accent-600 text-xs px-2 py-0.5 rounded-full font-medium shrink-0">
-                                <Zap size={11} />
-                                Premium
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-neutral-500 flex items-center gap-1 mb-2">
-                            <MapPin size={14} />
-                            {c.neighborhood}, {c.city}
-                          </p>
-                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-3">
-                            <span className="flex items-center gap-1">
-                              <Star size={13} className="text-accent-400" />
-                              {c.rating} ({c.totalReviews} avaliações)
+                              {room.available ? "Disponível" : "Indisponível"}
                             </span>
+                          </div>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-2">
                             <span className="font-display font-bold text-primary-500">
-                              R$ {c.pricePerPeriod}/período
+                              R$ {room.pricePerPeriod}/período
+                            </span>
+                            <span className="flex items-center gap-1.5">
+                              {room.periods.morning && <Sun size={13} className="text-accent-400" />}
+                              {room.periods.afternoon && <Sunset size={13} className="text-accent-400" />}
+                              {room.periods.evening && <Moon size={13} className="text-primary-400" />}
+                              {[
+                                room.periods.morning && "Manhã",
+                                room.periods.afternoon && "Tarde",
+                                room.periods.evening && "Noite",
+                              ]
+                                .filter(Boolean)
+                                .join(" · ")}
                             </span>
                           </div>
+                          {room.equipment.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {room.equipment.slice(0, 3).map((eq) => (
+                                <span
+                                  key={eq}
+                                  className="text-xs bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full"
+                                >
+                                  {eq}
+                                </span>
+                              ))}
+                              {room.equipment.length > 3 && (
+                                <span className="text-xs text-neutral-400">
+                                  +{room.equipment.length - 3}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <div className="flex gap-2">
                             <button className="flex items-center gap-1.5 text-xs border border-neutral-200 text-neutral-600 rounded-lg px-3 py-1.5 hover:bg-neutral-50 transition-colors">
                               <Edit3 size={13} />
                               Editar
                             </button>
-                            {!c.isPremium && (
-                              <button
-                                onClick={() => setPremiumConsultory(c.name)}
-                                className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-1.5 hover:bg-accent-100 transition-colors"
-                              >
-                                <Zap size={13} />
-                                Destacar
-                              </button>
-                            )}
                           </div>
                         </div>
                       </motion.div>
@@ -433,6 +474,18 @@ export default function OwnerDashboard() {
           isOpen={true}
           onClose={() => setPremiumConsultory(null)}
           consultoryName={premiumConsultory}
+        />
+      )}
+
+      {showCreateRoom && primaryConsultory && currentUser && (
+        <CreateRoomModal
+          consultoryId={primaryConsultory.id}
+          ownerId={currentUser.id}
+          onClose={() => setShowCreateRoom(false)}
+          onCreated={(room) => {
+            setRooms((prev) => [...prev, room]);
+            setShowCreateRoom(false);
+          }}
         />
       )}
     </DashboardLayout>

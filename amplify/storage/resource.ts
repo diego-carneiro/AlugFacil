@@ -8,6 +8,10 @@ export const storage = defineStorage({
       allow.guest.to(["read"]),
       allow.authenticated.to(["read", "write"]),
     ],
+    "public/users/*": [
+      allow.guest.to(["read"]),
+      allow.authenticated.to(["read", "write"]),
+    ],
     "inspections/{entity_id}/*": [allow.entity("identity").to(["read", "write", "delete"])],
   }),
 });

@@ -1013,7 +1013,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "ConsultoryownerProfileauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/eebe91efc0588ca7c10d627b5f09465fef1620605fdaece6560997b2883fcec0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/fab127c2e7d1638b37bec77c9a0884424d1f70fb42e5c9c5364bddb39a508c84.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },

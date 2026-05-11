@@ -20,7 +20,7 @@ function mapBackendReview(item: Record<string, unknown>): Review {
     rating: Number(item.rating ?? 0),
     comment: String(item.comment ?? ""),
     reviewDate: String(item.reviewDate ?? ""),
-    type: String(item.type ?? "tenant_to_owner") as ReviewType,
+    type: String(item.type ?? "tenant_to_consultory") as ReviewType,
   };
 }
 

@@ -66,11 +66,21 @@ Esta secao estabelece uma decisao de arquitetura fundamental que deve ser respei
 
 ### Rotas de perfil — definicao canonica
 
-- `/profile` — perfil do usuario autenticado (sempre o proprio usuario logado, apenas dentistas/admins tem perfil util)
+- `/profile` — perfil do usuario autenticado para dentistas/admins (com upload de foto de perfil); proprietarios sao redirecionados automaticamente para `/dashboard/proprietario/perfil`
+- `/dashboard/proprietario/perfil` — perfil do consultorio do proprietario autenticado (logo, descricao, equipamentos, periodos, fotos); rota protegida por `OwnerOnlyRoute`
 - `/:username` — perfil publico de outro usuario (locatario/dentista); proprietarios nao possuem rota de perfil
 - `/consultorios/:id` — tela de perfil de um consultorio (nao de um usuario)
 
 A tela `/:username` e destinada apenas a dentistas. Quando proprietarios tentarem acessar um perfil publico, devem ser redirecionados ou ver uma mensagem adequada, pois seu perfil publico e o consultorio.
+
+### Identidade visual na sidebar do dashboard
+
+A sidebar do `DashboardLayout` exibe, na area de perfil do usuario:
+
+- **Dentistas e admins**: nome pessoal do usuario e suas iniciais como avatar. Se houver foto de perfil carregada no S3 (`avatarKey` no modelo `User`), exibe a imagem no lugar das iniciais.
+- **Proprietarios**: nome do consultorio e logo do consultorio como avatar. A identidade exibida na sidebar e sempre a do consultorio — nunca o nome pessoal do proprietario. Se a logo ainda nao foi carregada, exibem-se as iniciais do nome do consultorio.
+
+Essa logica e implementada via prop `profileOverride` no `DashboardLayout`, populada pelo `OwnerDashboard` com os dados do primeiro consultorio carregado. O campo `logoKey` no modelo `Consultory` armazena a chave S3 da logo; `logoUrl` e a URL assinada resolvida no frontend.
 
 ---
 

@@ -18,6 +18,8 @@ const FULLSCREEN_ROUTES = ["/entrar", "/cadastro", "/dashboard"];
 function AppShell() {
   const { pathname } = useLocation();
   const isFullscreen = FULLSCREEN_ROUTES.some(r => pathname.startsWith(r));
+  const showHeader = pathname === "/";
+  const showFooter = pathname === "/";
 
   if (isFullscreen) {
     return <Router />;
@@ -25,11 +27,11 @@ function AppShell() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      {showHeader && <Header />}
       <main className="flex-1">
         <Router />
       </main>
-      <Footer />
+      {showFooter && <Footer />}
     </div>
   );
 }

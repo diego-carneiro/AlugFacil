@@ -5,16 +5,18 @@ const schema = a.schema({
   BookingStatus: a.enum(["pending", "confirmed", "completed", "cancelled"]),
   AvailabilityStatus: a.enum(["available", "blocked", "booked"]),
   InspectionType: a.enum(["check_in", "check_out"]),
-  ReviewType: a.enum(["tenant_to_owner", "owner_to_tenant"]),
+  ReviewType: a.enum(["tenant_to_consultory", "owner_to_tenant"]),
 
   User: a
     .model({
       cognitoId: a.string().required(),
       name: a.string().required(),
+      publicSlug: a.string(),
       email: a.email().required(),
       phone: a.phone(),
       role: a.enum(["TENANT", "OWNER", "ADMIN"]),
       avatarKey: a.string(),
+      taxId: a.string(),
       cro: a.string(),
       specialty: a.string(),
       verified: a.boolean().default(false),
@@ -26,12 +28,14 @@ const schema = a.schema({
     .authorization((allow) => [
       allow.owner(),
       allow.groups(["ADMIN"]),
+      allow.publicApiKey().to(["read"]),
       allow.authenticated().to(["read"]),
     ]),
 
   Consultory: a
     .model({
       name: a.string().required(),
+      publicSlug: a.string(),
       description: a.string(),
       neighborhood: a.string().required(),
       city: a.string().required(),
@@ -43,6 +47,7 @@ const schema = a.schema({
       pricePerPeriod: a.float().required(),
       equipment: a.string().array(),
       imageKeys: a.string().array(),
+      logoKey: a.string(),
       periodMorning: a.boolean().default(false),
       periodAfternoon: a.boolean().default(false),
       periodEvening: a.boolean().default(false),
@@ -52,16 +57,17 @@ const schema = a.schema({
       rating: a.float().default(0),
       totalReviews: a.integer().default(0),
       whatsappNumber: a.string(),
-      ownerId: a.id().required(),
+      ownerId: a.string().required(),
       ownerProfile: a.belongsTo("User", "ownerId"),
       bookings: a.hasMany("Booking", "consultoryId"),
       availabilities: a.hasMany("Availability", "consultoryId"),
       inspections: a.hasMany("Inspection", "consultoryId"),
       reviews: a.hasMany("Review", "consultoryId"),
+      rooms: a.hasMany("Room", "consultoryId"),
     })
     .authorization((allow) => [
       allow.publicApiKey().to(["read"]),
-      allow.owner().to(["create", "update", "delete"]),
+      allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
       allow.groups(["ADMIN"]),
     ]),
 
@@ -123,6 +129,30 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.authenticated(),
+      allow.groups(["ADMIN"]),
+    ]),
+
+  Room: a
+    .model({
+      consultoryId: a.id().required(),
+      consultory: a.belongsTo("Consultory", "consultoryId"),
+      ownerId: a.string().required(),
+      name: a.string().required(),
+      description: a.string(),
+      pricePerPeriod: a.float().required(),
+      equipment: a.string().array(),
+      imageKeys: a.string().array(),
+      periodMorning: a.boolean().default(false),
+      periodAfternoon: a.boolean().default(false),
+      periodEvening: a.boolean().default(false),
+      available: a.boolean().default(true),
+      rating: a.float().default(0),
+      totalReviews: a.integer().default(0),
+    })
+    .authorization((allow) => [
+      allow.publicApiKey().to(["read"]),
+      allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+      allow.authenticated().to(["read"]),
       allow.groups(["ADMIN"]),
     ]),
 

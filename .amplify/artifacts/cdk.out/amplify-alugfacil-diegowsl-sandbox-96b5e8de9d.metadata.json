@@ -152,6 +152,12 @@
       "data": "groups"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/definedFunctions": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "definedFunctions"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/awsAppsyncApiId": [
     {
       "type": "aws:cdk:logicalId",
@@ -240,6 +246,12 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyalugfacildiegowslsandbox96b5e8de9dauthautoconfirmuserlambda45FAD957Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyalugfacildiegowslsandbox96b5e8de9dauthautoconfirmuserlambda45FAD957Ref"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref": [
@@ -440,6 +452,12 @@
       "data": "amplifyAuthADMINGroup7373BBFD"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/auto-confirm-user-lambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "autoconfirmuserlambda626CB722"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/CDKMetadata/Default": [
     {
       "type": "aws:cdk:logicalId",
@@ -566,6 +584,12 @@
       "data": "amplifyAuthUserPool4BA7F805"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyAuth/UserPool/PreSignUpCognito": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyAuthUserPoolPreSignUpCognito55F45D8E"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyAuth/UserPoolAppClient/Resource": [
     {
       "type": "aws:cdk:logicalId",
@@ -600,6 +624,12 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "amplifyAuthADMINGroupRole464874DD"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/auto-confirm-user-lambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "autoconfirmuserlambdaServiceRoleA21ABFE9"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/GraphQLAPI/Resource": [
@@ -1034,16 +1064,6 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "Subscription.onDeleteConsultory"
-    }
-  ],
-  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Consultory/consultoryOwnerResolver": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ConsultoryownerResolver"
-    },
-    {
-      "type": "graphqltransformer:resourceName",
-      "data": "Consultory.owner"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Consultory/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataAmplifyTableManagerNestedStackAmplifyTableManagerNestedStackResource716E4D53Outputs.amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataAmplifyTableManagerTableManagerCustomProviderframeworkonEvent9F494808Arn": [
@@ -2958,16 +2978,6 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "SubscriptionOnDeleteConsultoryDataResolverFn"
-    }
-  ],
-  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Consultory/ConsultoryOwnerDataResolverFn/ConsultoryOwnerDataResolverFn.AppSyncFunction": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ConsultoryOwnerDataResolverFnConsultoryOwnerDataResolverFnAppSyncFunction9054A792"
-    },
-    {
-      "type": "graphqltransformer:resourceName",
-      "data": "ConsultoryOwnerDataResolverFn"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Consultory/CDKMetadata/Default": [

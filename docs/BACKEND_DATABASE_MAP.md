@@ -228,16 +228,30 @@ O schema gera automaticamente:
 
 ### 7.2 Relacionamento entre entidades
 
+Regras de dominio (modelo de negocio):
+
+- `Owner` nao e um perfil pessoal publico; ele representa um negocio.
+- Cada `Owner` possui **1 consultorio (negocio)**.
+- Cada consultorio possui **N salas** disponiveis para locacao.
+- O `Owner` gerencia **N salas** na aba **Minhas salas**.
+- Avaliacoes de locatario sao feitas para o consultorio/sala.
+- Avaliacoes de owner sao feitas para o locatario.
+
+Mapeamento no schema atual:
+
+- O model `Consultory` representa a **sala ofertada**.
+- O vinculo "consultorio (negocio) com N salas" e uma regra de dominio; as salas sao os registros operacionais usados em busca, agenda, reserva e precificacao.
+
 ```mermaid
 erDiagram
-  USER ||--o{ CONSULTORY : "ownedConsultories (ownerId)"
+  USER ||--o{ CONSULTORY : "rooms managed by owner (ownerId)"
   USER ||--o{ BOOKING : "tenantId / ownerId"
-  USER ||--o{ REVIEW : "fromUserId / toUserId"
+  USER ||--o{ REVIEW : "owner_to_tenant (toUserId)"
 
   CONSULTORY ||--o{ CONSULTORYIMAGE : "consultoryId"
   CONSULTORY ||--o{ BOOKING : "consultoryId"
   CONSULTORY ||--o{ AVAILABILITY : "consultoryId"
-  CONSULTORY ||--o{ REVIEW : "consultoryId"
+  CONSULTORY ||--o{ REVIEW : "tenant_to_consultory (consultoryId)"
 
   BOOKING ||--|| INSPECTION : "bookingId"
   BOOKING ||--o{ REVIEW : "bookingId"
@@ -248,22 +262,22 @@ erDiagram
 
 | Model | PK | Relacoes principais | Papel |
 |---|---|---|---|
-| `User` | `cognitoId` | `Consultory`, `Booking`, `Review` | Perfil de usuario + reputacao |
-| `Consultory` | `id` | `User`, `Booking`, `ConsultoryImage`, `Availability`, `Review` | Catalogo e oferta do espaco |
+| `User` | `cognitoId` | `Consultory`, `Booking`, `Review` | Conta de acesso (owner = conta do negocio; tenant = perfil profissional) |
+| `Consultory` | `id` | `User`, `Booking`, `ConsultoryImage`, `Availability`, `Review` | Sala ofertada para locacao (unidade que recebe avaliacao publica) |
 | `ConsultoryImage` | `id` | `Consultory` | Referencias de imagens no S3 |
 | `Booking` | `id` | `Consultory`, `User`, `Inspection`, `Review`, `Payment` | Reserva e ciclo de vida |
 | `Inspection` | `id` | `Booking` | Check-in/check-out + evidencias |
-| `Review` | `id` | `Booking`, `Consultory`, `User` | Avaliacao bilateral |
+| `Review` | `id` | `Booking`, `Consultory`, `User` | Avaliacao de locatario para consultorio/sala e de owner para locatario |
 | `Payment` | `id` | `Booking` | Registro financeiro |
 | `Availability` | `id` | `Consultory` | Agenda de disponibilidade |
 
 ### 7.4 Campos importantes por model
 
 - `User`
-- `cognitoId`, `name`, `email`, `phone`, `role`, `avatarKey`, `cro`, `specialty`, `verified`, `rating`, `totalReviews`
+- `cognitoId`, `name`, `publicSlug`, `email`, `phone`, `role`, `avatarKey`, `taxId`, `cro`, `specialty`, `verified`, `rating`, `totalReviews`
 
 - `Consultory`
-- `name`, `description`, `neighborhood`, `city`, `state`, `address`, `zipCode`, `latitude`, `longitude`, `pricePerPeriod`, `equipment[]`, `periodMorning`, `periodAfternoon`, `periodEvening`, `featured`, `isPremium`, `premiumUntil`, `rating`, `totalReviews`, `whatsappNumber`, `ownerId`
+- `name`, `publicSlug`, `description`, `neighborhood`, `city`, `state`, `address`, `zipCode`, `latitude`, `longitude`, `pricePerPeriod`, `equipment[]`, `periodMorning`, `periodAfternoon`, `periodEvening`, `featured`, `isPremium`, `premiumUntil`, `rating`, `totalReviews`, `whatsappNumber`, `ownerId`
 
 - `ConsultoryImage`
 - `s3Key`, `order`, `consultoryId`
@@ -276,6 +290,8 @@ erDiagram
 
 - `Review`
 - `rating`, `comment`, `type`, `fromUserId`, `toUserId`, `bookingId`, `consultoryId`
+- `type=tenant_to_consultory`: avaliacao publica da sala/consultorio
+- `type=owner_to_tenant`: avaliacao do locatario
 
 - `Payment`
 - `amount`, `platformFee`, `ownerAmount`, `currency`, `provider`, `providerPaymentId`, `providerChargeId`, `status`, `transferId`, `transferredAt`, `bookingId`
@@ -283,12 +299,35 @@ erDiagram
 - `Availability`
 - `consultoryId`, `date`, `period`, `isAvailable`
 
-### 7.5 Autorizacao por model (resumo)
+### 7.5 URLs publicas por slug (tenant e consultorio)
+
+Regra de roteamento no frontend:
+
+- `/profile` e exclusivo para o usuario autenticado (dono da conta).
+- `/:slug` e rota publica generica.
+- Em `/:slug`, o sistema tenta primeiro resolver `Consultory.publicSlug`.
+- Se encontrar consultorio, redireciona para `/consultorios/:id`.
+- Se nao encontrar consultorio, tenta resolver `User.publicSlug` de locatario (`TENANT`).
+- Se nenhum registro for encontrado, exibe estado de "perfil nao encontrado".
+
+Regra de dominio:
+
+- Owner nao possui pagina publica pessoal em `/:slug`.
+- A presenca publica do owner acontece pelo consultorio (slug do consultorio).
+
+Observacoes de slug:
+
+- `publicSlug` e gerado em formato URL-safe.
+- Em dados legados sem slug salvo, o sistema usa fallback por nome normalizado e persiste slug ao encontrar o registro.
+- Slugs reservados (ex.: `profile`, `consultorios`, `dashboard`, `entrar`) nao devem ser usados para registros publicos.
+
+### 7.6 Autorizacao por model (resumo)
 
 - `User`
 - owner no proprio registro
 - `ADMIN` com acesso administrativo
 - autenticado pode ler
+- leitura publica por `apiKey` para lookup de perfil publico por slug
 
 - `Consultory`
 - leitura publica por `apiKey`
@@ -309,8 +348,8 @@ erDiagram
 - `ADMIN` com acesso administrativo
 
 - `Review`
-- owner cria
-- autenticados leem
+- owner e tenant criam conforme ciclo de locacao
+- avaliacao de consultorio pode ser lida publicamente
 - `ADMIN` com acesso administrativo
 
 - `Payment`
@@ -322,18 +361,18 @@ erDiagram
 - owner cria/edita/exclui
 - `ADMIN` com acesso administrativo
 
-### 7.6 Enums de negocio
+### 7.7 Enums de negocio
 
 - `BookingPeriod`: `MORNING`, `AFTERNOON`, `EVENING`
 - `BookingStatus`: `PENDING`, `CONFIRMED`, `CHECKED_IN`, `COMPLETED`, `CANCELLED`, `DISPUTED`
 - `PaymentStatus` (Booking): `PENDING`, `PAID`, `REFUNDED`
 - `AvailabilityPeriod`: `MORNING`, `AFTERNOON`, `EVENING`
 - `InspectionType`: `CHECK_IN`, `CHECK_OUT`
-- `ReviewType`: `TENANT_TO_OWNER`, `OWNER_TO_TENANT`
+- `ReviewType`: `TENANT_TO_CONSULTORY`, `OWNER_TO_TENANT`
 - `PaymentProvider`: `STRIPE`, `PAGARME`
 - `PaymentRecordStatus`: `PENDING`, `PROCESSING`, `PAID`, `FAILED`, `REFUNDED`
 
-### 7.7 GSIs recomendados
+### 7.8 GSIs recomendados
 
 | Tabela | GSI | Partition Key | Sort Key | Uso |
 |---|---|---|---|---|
@@ -345,7 +384,7 @@ erDiagram
 | Consultory | byOwner | ownerId | createdAt | Consultorios do proprietario |
 | Availability | byConsultory | consultoryId | date | Disponibilidade |
 
-### 7.8 Cliente frontend para dados reais
+### 7.9 Cliente frontend para dados reais
 
 ```ts
 import { generateClient } from "aws-amplify/data";

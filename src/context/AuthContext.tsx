@@ -36,6 +36,7 @@ interface AuthContextValue {
     email: string;
     phone: string;
     password: string;
+    taxId?: string;
     cro?: string;
     specialty?: string;
     cnpj?: string;
@@ -178,6 +179,7 @@ async function getAmplifyUser(): Promise<User> {
     email: attributes.email ?? authUser.username,
     role: mapRole(attributes["custom:role"]),
     phone: attributes.phone_number ?? "",
+    taxId: attributes["custom:taxId"],
     cro: attributes["custom:cro"],
     specialty: attributes["custom:specialty"],
     verified: toBoolean(attributes["custom:verified"]),
@@ -293,6 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: input.name,
             phone_number: normalizedPhone,
             "custom:role": role,
+            "custom:taxId": input.taxId ?? input.cnpj ?? "",
             "custom:cro": input.cro ?? "",
             "custom:specialty": input.specialty ?? "",
             "custom:verified": "true",
@@ -307,6 +310,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: normalizedEmail,
           role: input.role,
           phone: normalizedPhone,
+          taxId: input.taxId ?? input.cnpj,
           cro: input.cro,
           specialty: input.specialty,
           verified: true,
@@ -392,11 +396,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
-    if (hasAmplifyOutputs) {
-      await signOut();
-    }
     setCurrentUser(null);
     clearPersistedSession();
+    if (!hasAmplifyOutputs) return;
+
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Falha ao concluir signOut no Cognito:", error);
+    }
   };
 
   return (

@@ -1,6 +1,11 @@
 import { client, hasAmplifyBackend } from "./client";
 import type { Consultory } from "../../types/consultory";
-import { resolveStorageUrls } from "../storage/media";
+import { deleteStorageFile, resolveStorageUrl, resolveStorageUrls, uploadConsultoryLogo } from "../storage/media";
+import {
+  createPublicSlug,
+  matchesNameSlug,
+  normalizeRouteSlug,
+} from "../slug";
 
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=800";
@@ -188,6 +193,13 @@ function extractImageKeys(item: Record<string, unknown>): string[] {
   return item.imageKeys.filter((value): value is string => typeof value === "string");
 }
 
+function withFallbackConsultorySlug(consultory: Consultory): Consultory {
+  return {
+    ...consultory,
+    publicSlug: consultory.publicSlug ?? createPublicSlug(consultory.name, "consultorio"),
+  };
+}
+
 async function mapBackendConsultory(item: Record<string, unknown>): Promise<Consultory> {
   const id = String(item.id ?? "");
   const imageKeys = extractImageKeys(item);
@@ -200,9 +212,21 @@ async function mapBackendConsultory(item: Record<string, unknown>): Promise<Cons
     }
   }
 
+  const logoKey = typeof item.logoKey === "string" && item.logoKey.length > 0 ? item.logoKey : undefined;
+  let logoUrl: string | undefined;
+
+  if (logoKey && hasAmplifyBackend) {
+    try {
+      logoUrl = await resolveStorageUrl(logoKey);
+    } catch {
+      // noop — logo URL resolution failures are non-blocking
+    }
+  }
+
   return {
     id,
     name: String(item.name ?? ""),
+    publicSlug: typeof item.publicSlug === "string" ? item.publicSlug : undefined,
     neighborhood: String(item.neighborhood ?? ""),
     city: String(item.city ?? ""),
     state: String(item.state ?? ""),
@@ -215,6 +239,8 @@ async function mapBackendConsultory(item: Record<string, unknown>): Promise<Cons
       : [],
     imageKeys,
     images,
+    logoKey,
+    logoUrl,
     whatsappNumber: typeof item.whatsappNumber === "string" ? item.whatsappNumber : "",
     featured: Boolean(item.featured),
     ownerId: String(item.ownerId ?? ""),
@@ -237,9 +263,11 @@ export async function listConsultories(): Promise<Consultory[]> {
     limit: 1000,
   });
 
-  return Promise.all(
+  const mapped = await Promise.all(
     response.data.map((item) => mapBackendConsultory(item as unknown as Record<string, unknown>))
   );
+
+  return mapped.map(withFallbackConsultorySlug);
 }
 
 export async function searchConsultories(input: SearchConsultoriesInput = {}): Promise<Consultory[]> {
@@ -257,7 +285,7 @@ export async function searchConsultories(input: SearchConsultoriesInput = {}): P
       response.data.map((item) => mapBackendConsultory(item as unknown as Record<string, unknown>))
     );
 
-    return applyClientSideConsultoryFilters(mapped, input);
+    return applyClientSideConsultoryFilters(mapped.map(withFallbackConsultorySlug), input);
   } catch (error) {
     if (!filter) {
       throw error;
@@ -277,6 +305,7 @@ export async function listConsultoriesByOwner(ownerId: string): Promise<Consulto
   const api = getClient();
 
   const response = await api.models.Consultory.list({
+    authMode: "apiKey",
     filter: {
       ownerId: {
         eq: ownerId,
@@ -285,9 +314,11 @@ export async function listConsultoriesByOwner(ownerId: string): Promise<Consulto
     limit: 1000,
   });
 
-  return Promise.all(
+  const mapped = await Promise.all(
     response.data.map((item) => mapBackendConsultory(item as unknown as Record<string, unknown>))
   );
+
+  return mapped.map(withFallbackConsultorySlug);
 }
 
 export async function getConsultoryById(id: string): Promise<Consultory | null> {
@@ -304,7 +335,98 @@ export async function getConsultoryById(id: string): Promise<Consultory | null> 
   });
 
   const item = response.data[0];
-  return item ? mapBackendConsultory(item as unknown as Record<string, unknown>) : null;
+  if (!item) {
+    return null;
+  }
+
+  const mapped = await mapBackendConsultory(item as unknown as Record<string, unknown>);
+  return withFallbackConsultorySlug(mapped);
+}
+
+async function findUniqueConsultorySlug(baseSlug: string): Promise<string> {
+  const api = getClient();
+  let candidate = baseSlug;
+  let suffix = 2;
+
+  for (;;) {
+    const response = await api.models.Consultory.list({
+      authMode: "apiKey",
+      filter: {
+        publicSlug: {
+          eq: candidate,
+        },
+      },
+      limit: 1,
+    });
+
+    if (!response.data[0]) {
+      return candidate;
+    }
+
+    candidate = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+}
+
+async function buildConsultoryPublicSlug(name: string): Promise<string> {
+  const baseSlug = createPublicSlug(name, "consultorio");
+  return findUniqueConsultorySlug(baseSlug);
+}
+
+export async function getConsultoryByPublicSlug(slug: string): Promise<Consultory | null> {
+  const normalizedSlug = normalizeRouteSlug(slug);
+  const api = getClient();
+
+  const exact = await api.models.Consultory.list({
+    authMode: "apiKey",
+    filter: {
+      publicSlug: {
+        eq: normalizedSlug,
+      },
+    },
+    limit: 1,
+  });
+
+  const exactItem = exact.data[0];
+  if (exactItem) {
+    const mapped = await mapBackendConsultory(exactItem as unknown as Record<string, unknown>);
+    return withFallbackConsultorySlug(mapped);
+  }
+
+  const legacyCandidates = await api.models.Consultory.list({
+    authMode: "apiKey",
+    limit: 1000,
+  });
+
+  const legacyMatch = legacyCandidates.data.find((item) => {
+    const payload = item as unknown as Record<string, unknown>;
+    const name = String(payload.name ?? "");
+    return matchesNameSlug(name, normalizedSlug, "consultorio");
+  });
+
+  if (!legacyMatch) {
+    return null;
+  }
+
+  const payload = legacyMatch as unknown as Record<string, unknown>;
+  let mapped = await mapBackendConsultory(payload);
+
+  if (!mapped.publicSlug && mapped.id) {
+    const generatedSlug = await buildConsultoryPublicSlug(mapped.name);
+    const updated = await api.models.Consultory.update({
+      id: mapped.id,
+      publicSlug: generatedSlug,
+    });
+
+    if (!updated.errors?.length) {
+      mapped = {
+        ...mapped,
+        publicSlug: generatedSlug,
+      };
+    }
+  }
+
+  return withFallbackConsultorySlug(mapped);
 }
 
 export async function listRelatedConsultories(
@@ -317,6 +439,7 @@ export async function listRelatedConsultories(
 
 export interface CreateConsultoryInput {
   name: string;
+  publicSlug?: string;
   description?: string;
   neighborhood: string;
   city: string;
@@ -335,9 +458,11 @@ export interface CreateConsultoryInput {
 
 export async function createConsultory(input: CreateConsultoryInput): Promise<Consultory> {
   const api = getClient();
+  const publicSlug = input.publicSlug ?? (await buildConsultoryPublicSlug(input.name));
 
   const created = await api.models.Consultory.create({
     name: input.name,
+    publicSlug,
     description: input.description,
     neighborhood: input.neighborhood,
     city: input.city,
@@ -359,5 +484,39 @@ export async function createConsultory(input: CreateConsultoryInput): Promise<Co
     throw new Error(message);
   }
 
-  return mapBackendConsultory(created.data as unknown as Record<string, unknown>);
+  const mapped = await mapBackendConsultory(created.data as unknown as Record<string, unknown>);
+  return withFallbackConsultorySlug(mapped);
+}
+
+export async function updateConsultoryLogoKey(consultoryId: string, logoKey: string | null): Promise<void> {
+  const api = getClient();
+
+  const updated = await api.models.Consultory.update({
+    id: consultoryId,
+    logoKey: logoKey ?? undefined,
+  });
+
+  if (updated.errors?.length) {
+    throw new Error(updated.errors[0].message ?? "Não foi possível atualizar a logo do consultório.");
+  }
+}
+
+export async function uploadAndSaveConsultoryLogo(input: {
+  consultoryId: string;
+  ownerId: string;
+  file: File;
+  previousLogoKey?: string;
+}): Promise<string> {
+  const key = await uploadConsultoryLogo(input.ownerId, input.file);
+  await updateConsultoryLogoKey(input.consultoryId, key);
+
+  if (input.previousLogoKey && input.previousLogoKey !== key) {
+    try {
+      await deleteStorageFile(input.previousLogoKey);
+    } catch {
+      // Keep operation non-blocking if old file cleanup fails.
+    }
+  }
+
+  return key;
 }

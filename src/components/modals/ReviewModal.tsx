@@ -30,7 +30,7 @@ export default function ReviewModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const targetName = reviewerRole === "tenant" ? booking.ownerName : booking.tenantName;
+  const targetName = reviewerRole === "tenant" ? booking.consultoryName : booking.tenantName;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +50,11 @@ export default function ReviewModal({
         consultoryId: booking.consultoryId,
         fromUserId: currentUser.id,
         fromUserName: currentUser.name,
-        toUserId: reviewerRole === "tenant" ? booking.ownerId : booking.tenantId,
-        toUserName: reviewerRole === "tenant" ? booking.ownerName : booking.tenantName,
+        toUserId: reviewerRole === "tenant" ? booking.consultoryId : booking.tenantId,
+        toUserName: reviewerRole === "tenant" ? booking.consultoryName : booking.tenantName,
         rating,
         comment,
-        type: reviewerRole === "tenant" ? "tenant_to_owner" : "owner_to_tenant",
+        type: reviewerRole === "tenant" ? "tenant_to_consultory" : "owner_to_tenant",
         reviewDate: new Date().toISOString().slice(0, 10),
       });
 

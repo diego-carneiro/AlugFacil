@@ -70,6 +70,13 @@
               "isRequired": true,
               "attributes": []
             },
+            "publicSlug": {
+              "name": "publicSlug",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "email": {
               "name": "email",
               "isArray": false,
@@ -95,6 +102,13 @@
             },
             "avatarKey": {
               "name": "avatarKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "taxId": {
+              "name": "taxId",
               "isArray": false,
               "type": "String",
               "isRequired": false,
@@ -214,6 +228,13 @@
                     ]
                   },
                   {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read"
+                    ]
+                  },
+                  {
                     "allow": "private",
                     "operations": [
                       "read"
@@ -244,6 +265,13 @@
               "isArray": false,
               "type": "String",
               "isRequired": true,
+              "attributes": []
+            },
+            "publicSlug": {
+              "name": "publicSlug",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
               "attributes": []
             },
             "description": {
@@ -391,7 +419,7 @@
             "ownerId": {
               "name": "ownerId",
               "isArray": false,
-              "type": "ID",
+              "type": "String",
               "isRequired": true,
               "attributes": []
             },
@@ -511,14 +539,14 @@
                   },
                   {
                     "provider": "userPools",
-                    "ownerField": "owner",
+                    "ownerField": "ownerId",
                     "allow": "owner",
                     "operations": [
                       "create",
                       "update",
                       "delete"
                     ],
-                    "identityClaim": "cognito:username"
+                    "identityClaim": "sub"
                   },
                   {
                     "groupClaim": "cognito:groups",
@@ -1293,7 +1321,7 @@
         "ReviewType": {
           "name": "ReviewType",
           "values": [
-            "tenant_to_owner",
+            "tenant_to_consultory",
             "owner_to_tenant"
           ]
         },
@@ -1329,6 +1357,17 @@
             ]
           },
           "public/consultories/*": {
+            "guest": [
+              "get",
+              "list"
+            ],
+            "authenticated": [
+              "get",
+              "list",
+              "write"
+            ]
+          },
+          "public/users/*": {
             "guest": [
               "get",
               "list"

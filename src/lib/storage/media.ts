@@ -1,5 +1,6 @@
-import { getUrl, uploadData } from "aws-amplify/storage";
+import { getUrl, remove, uploadData } from "aws-amplify/storage";
 import { hasAmplifyBackend } from "../api/client";
+import type { UserRole } from "../../types/user";
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 
@@ -59,6 +60,48 @@ export async function uploadInspectionPhotos(
   });
 
   return Promise.all(uploads);
+}
+
+export async function uploadConsultoryLogo(ownerId: string, file: File): Promise<string> {
+  ensureBackend();
+
+  const key = `public/consultories/${ownerId}/logo/${timestampedName(file.name)}`;
+
+  const result = await uploadData({
+    path: key,
+    data: file,
+    options: {
+      contentType: file.type || "application/octet-stream",
+    },
+  }).result;
+
+  return result.path;
+}
+
+export async function uploadUserIdentityImage(
+  userId: string,
+  role: Exclude<UserRole, "admin">,
+  file: File
+): Promise<string> {
+  ensureBackend();
+
+  const roleFolder = role === "owner" ? "owners" : "tenants";
+  const key = `public/users/${roleFolder}/${userId}/${timestampedName(file.name)}`;
+
+  const result = await uploadData({
+    path: key,
+    data: file,
+    options: {
+      contentType: file.type || "application/octet-stream",
+    },
+  }).result;
+
+  return result.path;
+}
+
+export async function deleteStorageFile(path: string): Promise<void> {
+  ensureBackend();
+  await remove({ path });
 }
 
 export async function resolveStorageUrl(key: string): Promise<string> {

@@ -15,7 +15,6 @@ import { useAuth } from "../../context/AuthContext";
 const navLinks = [
   { to: "/", label: "Início" },
   { to: "/consultorios", label: "Consultórios" },
-  { to: "/cadastrar", label: "Cadastrar Consultório" },
   { to: "/sobre", label: "Sobre" },
   { to: "/contato", label: "Contato" },
 ];
@@ -33,8 +32,8 @@ export default function Header() {
   const navigate = useNavigate();
   const { currentUser, isLoggedIn, logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     setUserMenuOpen(false);
     navigate("/");
   };
@@ -53,7 +52,7 @@ export default function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-neutral-100">
-      <Container className="flex items-center justify-between h-16 lg:h-20">
+      <Container className="flex items-center h-16 lg:h-20">
         <Link to="/" className="flex items-center gap-2">
           <span className="text-2xl">🦷</span>
           <span className="font-display font-bold text-xl text-primary-500">
@@ -61,7 +60,7 @@ export default function Header() {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden md:flex items-center gap-8 ml-20">
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -77,8 +76,7 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Desktop auth area */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3 ml-auto">
           {isLoggedIn && currentUser ? (
             <div className="relative">
               <button
@@ -147,7 +145,9 @@ export default function Header() {
 
                     <div className="p-1.5">
                       <button
-                        onClick={handleLogout}
+                        onClick={() => {
+                          void handleLogout();
+                        }}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         <LogOut size={15} />
@@ -178,14 +178,13 @@ export default function Header() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden p-2 text-neutral-700"
+          className="md:hidden p-2 text-neutral-700 ml-auto"
           aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </Container>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -240,7 +239,7 @@ export default function Header() {
                     <div className="h-px bg-linear-to-r from-transparent via-neutral-200 to-transparent my-1" />
                     <button
                       onClick={() => {
-                        handleLogout();
+                        void handleLogout();
                         setMenuOpen(false);
                       }}
                       className="flex items-center gap-2 text-red-500 px-4 py-3 rounded-xl text-sm font-medium"

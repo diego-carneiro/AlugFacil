@@ -20,6 +20,14 @@
     ],
     "EmailVerificationMessage": "The verification code to your new account is {####}",
     "EmailVerificationSubject": "Verify your new account",
+    "LambdaConfig": {
+     "PreSignUp": {
+      "Fn::GetAtt": [
+       "autoconfirmuserlambda626CB722",
+       "Arn"
+      ]
+     }
+    },
     "Policies": {
      "PasswordPolicy": {
       "MinimumLength": 8,
@@ -61,6 +69,12 @@
      {
       "AttributeDataType": "String",
       "Mutable": true,
+      "Name": "taxId",
+      "StringAttributeConstraints": {}
+     },
+     {
+      "AttributeDataType": "String",
+      "Mutable": true,
       "Name": "verified",
       "StringAttributeConstraints": {}
      }
@@ -93,6 +107,30 @@
    "DeletionPolicy": "Delete",
    "Metadata": {
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyAuth/UserPool/Resource"
+   }
+  },
+  "amplifyAuthUserPoolPreSignUpCognito55F45D8E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "autoconfirmuserlambda626CB722",
+      "Arn"
+     ]
+    },
+    "Principal": "cognito-idp.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "amplifyAuthUserPool4BA7F805",
+      "Arn"
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyAuth/UserPool/PreSignUpCognito"
    }
   },
   "amplifyAuthUserPoolAppClient2626C6F8": {
@@ -528,10 +566,117 @@
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/amplifyAuth/ADMINGroup"
    }
   },
+  "autoconfirmuserlambdaServiceRoleA21ABFE9": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "amplify:friendly-name",
+      "Value": "auto-confirm-user"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/auto-confirm-user-lambda/ServiceRole/Resource"
+   }
+  },
+  "autoconfirmuserlambda626CB722": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Architectures": [
+     "x86_64"
+    ],
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+     },
+     "S3Key": "35481424f9f0de91dedbe0ef9fb9a924a80a2f65b120f70405779ab4fc2d8361.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "AMPLIFY_SSM_ENV_CONFIG": "{}"
+     }
+    },
+    "EphemeralStorage": {
+     "Size": 512
+    },
+    "Handler": "index.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "autoconfirmuserlambdaServiceRoleA21ABFE9",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "amplify:friendly-name",
+      "Value": "auto-confirm-user"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "Timeout": 3
+   },
+   "DependsOn": [
+    "autoconfirmuserlambdaServiceRoleA21ABFE9"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/auto-confirm-user-lambda/Resource",
+    "aws:asset:path": "asset.35481424f9f0de91dedbe0ef9fb9a924a80a2f65b120f70405779ab4fc2d8361",
+    "aws:asset:is-bundled": true,
+    "aws:asset:property": "Code"
+   }
+  },
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12LTQ6CMBCFz8K+jEjwAIaFcWMIxrWp7agDpTV0kJimdzfEoMTV+95fDvkmgyyRo0+VblNDFwgH9Iz6yFK1Qo7+HJS7WWIH4eSxr5wzorzaL89QGkLLy+qX7DVaJn7N56WvncEts1T37u+/693wiIJkB2FaTd2kMUZhnUZo/OqZF7AuIEsaT5T2g2XqEOqPvgExaVzT3wAAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12M0U7DMAxFv2XvqSnd+ICtEoiXadrEc5UlXnGbOKh2mVDVf0cZKkw8Hfva51ZQPZVQruxVCuf7ItAZpj2Koj+pdb2xV2kml1omTTC9CQ6HlIKpL/w7L0MdCFnvT3/Jq0dW0q9Fvt+PKeBW1br3+M9/GdL4MZtg49lbmOoLH3CIJEKJ89/zyE4p8WzIRphyUY4zF6vh5LET2N+wCEbWjRVBFdhmGFnDbnQ96s4KzuYWntS2xO1scgV08vBZbeBxA+WqE6JiGFkpIhx/+A1H7FSQSgEAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/auth/CDKMetadata/Default"
@@ -819,6 +964,11 @@
   "amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref": {
    "Value": {
     "Ref": "amplifyAuthIdentityPool3FDE84CC"
+   }
+  },
+  "amplifyalugfacildiegowslsandbox96b5e8de9dauthautoconfirmuserlambda45FAD957Ref": {
+   "Value": {
+    "Ref": "autoconfirmuserlambda626CB722"
    }
   },
   "amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref": {
