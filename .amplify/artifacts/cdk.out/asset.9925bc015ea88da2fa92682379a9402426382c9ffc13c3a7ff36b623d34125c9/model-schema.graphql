@@ -1,0 +1,203 @@
+enum BookingPeriod {
+  morning
+  afternoon
+  evening
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+}
+
+enum AvailabilityStatus {
+  available
+  blocked
+  booked
+}
+
+enum InspectionType {
+  check_in
+  check_out
+}
+
+enum ReviewType {
+  tenant_to_consultory
+  owner_to_tenant
+}
+
+type User @model @auth(rules: [{allow: owner, ownerField: "owner"},
+  {allow: groups, groups: ["ADMIN"]},
+  {allow: public, provider: apiKey, operations: [read]},
+  {allow: private, operations: [read]}])
+{
+  cognitoId: String! @primaryKey
+  name: String!
+  publicSlug: String
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  taxId: String
+  cro: String
+  specialty: String
+  verified: Boolean @default(value: "false")
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+  ownedConsultories: [Consultory] @hasMany(references: ["ownerId"])
+}
+
+type Consultory @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: owner, operations: [create, read, update, delete], ownerField: "ownerId", identityClaim: "sub"},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  name: String!
+  publicSlug: String
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  imageKeys: [String]
+  logoKey: String
+  periodMorning: Boolean @default(value: "false")
+  periodAfternoon: Boolean @default(value: "false")
+  periodEvening: Boolean @default(value: "false")
+  featured: Boolean @default(value: "false")
+  isPremium: Boolean @default(value: "false")
+  premiumUntil: AWSDateTime
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+  whatsappNumber: String
+  ownerId: String!
+  ownerProfile: User @belongsTo(references: ["ownerId"])
+  bookings: [Booking] @hasMany(references: ["consultoryId"])
+  availabilities: [Availability] @hasMany(references: ["consultoryId"])
+  inspections: [Inspection] @hasMany(references: ["consultoryId"])
+  reviews: [Review] @hasMany(references: ["consultoryId"])
+  rooms: [Room] @hasMany(references: ["consultoryId"])
+}
+
+type Booking @model @auth(rules: [{allow: owner, operations: [create, read, update], ownerField: "tenantId", identityClaim: "sub"},
+  {allow: owner, operations: [read, update], ownerField: "ownerId", identityClaim: "sub"},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  consultoryName: String!
+  consultoryImage: AWSURL
+  tenantId: String!
+  tenantName: String!
+  ownerId: String!
+  ownerName: String!
+  date: AWSDate!
+  period: BookingPeriod!
+  status: BookingStatus!
+  price: Float!
+  completedAt: AWSDateTime
+  reviewedByTenant: Boolean @default(value: "false")
+  reviewedByOwner: Boolean @default(value: "false")
+  inspectedCheckIn: Boolean @default(value: "false")
+  inspectedCheckOut: Boolean @default(value: "false")
+  inspections: [Inspection] @hasMany(references: ["bookingId"])
+  reviews: [Review] @hasMany(references: ["bookingId"])
+}
+
+type Availability @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: private, operations: [create, read, update, delete]},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  date: AWSDate!
+  period: BookingPeriod!
+  status: AvailabilityStatus!
+  blockedByBookingId: ID
+  blockedReason: String
+}
+
+type Inspection @model @auth(rules: [{allow: private},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  bookingId: ID!
+  booking: Booking @belongsTo(references: ["bookingId"])
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  createdById: String!
+  createdByName: String!
+  type: InspectionType!
+  findingsJson: String!
+  issueCount: Int @default(value: "0")
+  photoKeys: [String]
+  inspectedAt: AWSDateTime!
+}
+
+type Room @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: owner, operations: [create, read, update, delete], ownerField: "ownerId", identityClaim: "sub"},
+  {allow: private, operations: [read]},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  ownerId: String!
+  name: String!
+  description: String
+  pricePerPeriod: Float!
+  equipment: [String]
+  imageKeys: [String]
+  periodMorning: Boolean @default(value: "false")
+  periodAfternoon: Boolean @default(value: "false")
+  periodEvening: Boolean @default(value: "false")
+  available: Boolean @default(value: "true")
+  rating: Float @default(value: "0")
+  totalReviews: Int @default(value: "0")
+}
+
+type Review @model @auth(rules: [{allow: public, provider: apiKey, operations: [read]},
+  {allow: private, operations: [read]},
+  {allow: groups, groups: ["ADMIN"]}])
+{
+  bookingId: ID!
+  booking: Booking @belongsTo(references: ["bookingId"])
+  consultoryId: ID!
+  consultory: Consultory @belongsTo(references: ["consultoryId"])
+  fromUserId: String!
+  fromUserName: String!
+  toUserId: String!
+  toUserName: String
+  rating: Int!
+  comment: String
+  reviewDate: AWSDate!
+  type: ReviewType!
+}
+
+type ReviewSubmissionResult @aws_cognito_user_pools
+{
+  id: ID!
+  bookingId: ID!
+  consultoryId: ID!
+  fromUserId: String!
+  fromUserName: String!
+  toUserId: String!
+  toUserName: String
+  rating: Int!
+  comment: String
+  reviewDate: AWSDate!
+  type: ReviewType!
+}
+
+enum UserRole {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+type Mutation {
+  submitBookingReview(bookingId: ID!, rating: Int!, comment: String): ReviewSubmissionResult @function(name: "FnSubmitBookingReview") @auth(rules: [{allow: private}])
+}

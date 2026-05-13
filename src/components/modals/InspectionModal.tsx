@@ -97,6 +97,11 @@ export default function InspectionModal({
       return;
     }
 
+    if (type === "check-out" && !booking.inspectedCheckIn) {
+      setError("Não é possível concluir check-out sem o check-in registrado.");
+      return;
+    }
+
     setIsSubmitting(true);
     setError("");
 
@@ -117,6 +122,8 @@ export default function InspectionModal({
       });
 
       await updateBooking(booking.id, {
+        status: type === "check-out" ? "completed" : booking.status,
+        completedAt: type === "check-out" ? new Date().toISOString() : booking.completedAt,
         inspectedCheckIn: type === "check-in" ? true : booking.inspectedCheckIn,
         inspectedCheckOut: type === "check-out" ? true : booking.inspectedCheckOut,
       });

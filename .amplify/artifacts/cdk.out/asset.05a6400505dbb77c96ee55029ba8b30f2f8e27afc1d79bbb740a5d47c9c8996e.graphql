@@ -1,0 +1,1197 @@
+enum BookingPeriod {
+  morning
+  afternoon
+  evening
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+}
+
+enum AvailabilityStatus {
+  available
+  blocked
+  booked
+}
+
+enum InspectionType {
+  check_in
+  check_out
+}
+
+enum ReviewType {
+  tenant_to_consultory
+  owner_to_tenant
+}
+
+type User @aws_api_key @aws_iam @aws_cognito_user_pools {
+  cognitoId: String!
+  name: String!
+  publicSlug: String
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  taxId: String
+  cro: String
+  specialty: String
+  verified: Boolean
+  rating: Float
+  totalReviews: Int
+  ownedConsultories(filter: ModelConsultoryFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelConsultoryConnection
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  owner: String
+}
+
+type Consultory @aws_api_key @aws_iam @aws_cognito_user_pools {
+  name: String!
+  publicSlug: String
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  imageKeys: [String]
+  logoKey: String
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  featured: Boolean
+  isPremium: Boolean
+  premiumUntil: AWSDateTime
+  rating: Float
+  totalReviews: Int
+  whatsappNumber: String
+  ownerId: String!
+  ownerProfile: User
+  bookings(filter: ModelBookingFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelBookingConnection
+  availabilities(filter: ModelAvailabilityFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelAvailabilityConnection
+  inspections(filter: ModelInspectionFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelInspectionConnection
+  reviews(filter: ModelReviewFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelReviewConnection
+  rooms(filter: ModelRoomFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelRoomConnection
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Booking @aws_iam @aws_cognito_user_pools {
+  consultoryId: ID!
+  consultory: Consultory
+  consultoryName: String!
+  consultoryImage: AWSURL
+  tenantId: String!
+  tenantName: String!
+  ownerId: String!
+  ownerName: String!
+  date: AWSDate!
+  period: BookingPeriod!
+  status: BookingStatus!
+  price: Float!
+  completedAt: AWSDateTime
+  reviewedByTenant: Boolean
+  reviewedByOwner: Boolean
+  inspectedCheckIn: Boolean
+  inspectedCheckOut: Boolean
+  inspections(filter: ModelInspectionFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelInspectionConnection
+  reviews(filter: ModelReviewFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelReviewConnection
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Availability @aws_api_key @aws_iam @aws_cognito_user_pools {
+  consultoryId: ID!
+  consultory: Consultory
+  date: AWSDate!
+  period: BookingPeriod!
+  status: AvailabilityStatus!
+  blockedByBookingId: ID
+  blockedReason: String
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Inspection @aws_iam @aws_cognito_user_pools {
+  bookingId: ID!
+  booking: Booking
+  consultoryId: ID!
+  consultory: Consultory
+  createdById: String!
+  createdByName: String!
+  type: InspectionType!
+  findingsJson: String!
+  issueCount: Int
+  photoKeys: [String]
+  inspectedAt: AWSDateTime!
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Room @aws_api_key @aws_iam @aws_cognito_user_pools {
+  consultoryId: ID!
+  consultory: Consultory
+  ownerId: String!
+  name: String!
+  description: String
+  pricePerPeriod: Float!
+  equipment: [String]
+  imageKeys: [String]
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  available: Boolean
+  rating: Float
+  totalReviews: Int
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type Review @aws_api_key @aws_iam @aws_cognito_user_pools {
+  bookingId: ID!
+  booking: Booking
+  consultoryId: ID!
+  consultory: Consultory
+  fromUserId: String!
+  fromUserName: String!
+  toUserId: String!
+  toUserName: String
+  rating: Int!
+  comment: String
+  reviewDate: AWSDate!
+  type: ReviewType!
+  id: ID!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
+type ReviewSubmissionResult @aws_cognito_user_pools @aws_iam {
+  id: ID!
+  bookingId: ID!
+  consultoryId: ID!
+  fromUserId: String!
+  fromUserName: String!
+  toUserId: String!
+  toUserName: String
+  rating: Int!
+  comment: String
+  reviewDate: AWSDate!
+  type: ReviewType!
+}
+
+enum UserRole {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+type Mutation @aws_iam {
+  createUser(input: CreateUserInput!, condition: ModelUserConditionInput): User @aws_iam @aws_cognito_user_pools
+  updateUser(input: UpdateUserInput!, condition: ModelUserConditionInput): User @aws_iam @aws_cognito_user_pools
+  deleteUser(input: DeleteUserInput!, condition: ModelUserConditionInput): User @aws_iam @aws_cognito_user_pools
+  createConsultory(input: CreateConsultoryInput!, condition: ModelConsultoryConditionInput): Consultory @aws_iam @aws_cognito_user_pools
+  updateConsultory(input: UpdateConsultoryInput!, condition: ModelConsultoryConditionInput): Consultory @aws_iam @aws_cognito_user_pools
+  deleteConsultory(input: DeleteConsultoryInput!, condition: ModelConsultoryConditionInput): Consultory @aws_iam @aws_cognito_user_pools
+  createBooking(input: CreateBookingInput!, condition: ModelBookingConditionInput): Booking @aws_iam @aws_cognito_user_pools
+  updateBooking(input: UpdateBookingInput!, condition: ModelBookingConditionInput): Booking @aws_iam @aws_cognito_user_pools
+  deleteBooking(input: DeleteBookingInput!, condition: ModelBookingConditionInput): Booking @aws_iam @aws_cognito_user_pools
+  createAvailability(input: CreateAvailabilityInput!, condition: ModelAvailabilityConditionInput): Availability @aws_iam @aws_cognito_user_pools
+  updateAvailability(input: UpdateAvailabilityInput!, condition: ModelAvailabilityConditionInput): Availability @aws_iam @aws_cognito_user_pools
+  deleteAvailability(input: DeleteAvailabilityInput!, condition: ModelAvailabilityConditionInput): Availability @aws_iam @aws_cognito_user_pools
+  createInspection(input: CreateInspectionInput!, condition: ModelInspectionConditionInput): Inspection @aws_iam @aws_cognito_user_pools
+  updateInspection(input: UpdateInspectionInput!, condition: ModelInspectionConditionInput): Inspection @aws_iam @aws_cognito_user_pools
+  deleteInspection(input: DeleteInspectionInput!, condition: ModelInspectionConditionInput): Inspection @aws_iam @aws_cognito_user_pools
+  createRoom(input: CreateRoomInput!, condition: ModelRoomConditionInput): Room @aws_iam @aws_cognito_user_pools
+  updateRoom(input: UpdateRoomInput!, condition: ModelRoomConditionInput): Room @aws_iam @aws_cognito_user_pools
+  deleteRoom(input: DeleteRoomInput!, condition: ModelRoomConditionInput): Room @aws_iam @aws_cognito_user_pools
+  createReview(input: CreateReviewInput!, condition: ModelReviewConditionInput): Review @aws_iam @aws_cognito_user_pools
+  updateReview(input: UpdateReviewInput!, condition: ModelReviewConditionInput): Review @aws_iam @aws_cognito_user_pools
+  deleteReview(input: DeleteReviewInput!, condition: ModelReviewConditionInput): Review @aws_iam @aws_cognito_user_pools
+  submitBookingReview(bookingId: ID!, rating: Int!, comment: String): ReviewSubmissionResult @aws_iam @aws_cognito_user_pools
+}
+
+input AmplifyAIConversationTurnErrorInput {
+  errorType: String!
+  message: String!
+}
+
+input ModelStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelBooleanInput {
+  ne: Boolean
+  eq: Boolean
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+}
+
+input ModelIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  attributeExists: Boolean
+  attributeType: ModelAttributeTypes
+  size: ModelSizeInput
+}
+
+input ModelSubscriptionStringInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+  in: [String]
+  notIn: [String]
+}
+
+input ModelSubscriptionIntInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+  in: [Int]
+  notIn: [Int]
+}
+
+input ModelSubscriptionFloatInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  between: [Float]
+  in: [Float]
+  notIn: [Float]
+}
+
+input ModelSubscriptionBooleanInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelSubscriptionIDInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+  in: [ID]
+  notIn: [ID]
+}
+
+enum ModelAttributeTypes {
+  binary
+  binarySet
+  bool
+  list
+  map
+  number
+  numberSet
+  string
+  stringSet
+  _null
+}
+
+input ModelSizeInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  between: [Int]
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelUserConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [User]!
+  nextToken: String
+}
+
+input ModelUserRoleInput {
+  eq: UserRole
+  ne: UserRole
+}
+
+input ModelUserFilterInput {
+  cognitoId: ModelStringInput
+  name: ModelStringInput
+  publicSlug: ModelStringInput
+  email: ModelStringInput
+  phone: ModelStringInput
+  role: ModelUserRoleInput
+  avatarKey: ModelStringInput
+  taxId: ModelStringInput
+  cro: ModelStringInput
+  specialty: ModelStringInput
+  verified: ModelBooleanInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelUserFilterInput]
+  or: [ModelUserFilterInput]
+  not: ModelUserFilterInput
+  owner: ModelStringInput
+}
+
+type Query {
+  getUser(cognitoId: String!): User @aws_api_key @aws_iam @aws_cognito_user_pools
+  listUsers(cognitoId: String, filter: ModelUserFilterInput, limit: Int, nextToken: String, sortDirection: ModelSortDirection): ModelUserConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+  getConsultory(id: ID!): Consultory @aws_api_key @aws_iam @aws_cognito_user_pools
+  listConsultories(filter: ModelConsultoryFilterInput, limit: Int, nextToken: String): ModelConsultoryConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+  getBooking(id: ID!): Booking @aws_iam @aws_cognito_user_pools
+  listBookings(filter: ModelBookingFilterInput, limit: Int, nextToken: String): ModelBookingConnection @aws_iam @aws_cognito_user_pools
+  getAvailability(id: ID!): Availability @aws_api_key @aws_iam @aws_cognito_user_pools
+  listAvailabilities(filter: ModelAvailabilityFilterInput, limit: Int, nextToken: String): ModelAvailabilityConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+  getInspection(id: ID!): Inspection @aws_iam @aws_cognito_user_pools
+  listInspections(filter: ModelInspectionFilterInput, limit: Int, nextToken: String): ModelInspectionConnection @aws_iam @aws_cognito_user_pools
+  getRoom(id: ID!): Room @aws_api_key @aws_iam @aws_cognito_user_pools
+  listRooms(filter: ModelRoomFilterInput, limit: Int, nextToken: String): ModelRoomConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+  getReview(id: ID!): Review @aws_api_key @aws_iam @aws_cognito_user_pools
+  listReviews(filter: ModelReviewFilterInput, limit: Int, nextToken: String): ModelReviewConnection @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
+input ModelUserConditionInput {
+  name: ModelStringInput
+  publicSlug: ModelStringInput
+  email: ModelStringInput
+  phone: ModelStringInput
+  role: ModelUserRoleInput
+  avatarKey: ModelStringInput
+  taxId: ModelStringInput
+  cro: ModelStringInput
+  specialty: ModelStringInput
+  verified: ModelBooleanInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  and: [ModelUserConditionInput]
+  or: [ModelUserConditionInput]
+  not: ModelUserConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  owner: ModelStringInput
+}
+
+input CreateUserInput {
+  cognitoId: String!
+  name: String!
+  publicSlug: String
+  email: AWSEmail!
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  taxId: String
+  cro: String
+  specialty: String
+  verified: Boolean
+  rating: Float
+  totalReviews: Int
+}
+
+input UpdateUserInput {
+  cognitoId: String!
+  name: String
+  publicSlug: String
+  email: AWSEmail
+  phone: AWSPhone
+  role: UserRole
+  avatarKey: String
+  taxId: String
+  cro: String
+  specialty: String
+  verified: Boolean
+  rating: Float
+  totalReviews: Int
+}
+
+input DeleteUserInput {
+  cognitoId: String!
+}
+
+input ModelSubscriptionUserFilterInput {
+  cognitoId: ModelSubscriptionStringInput
+  name: ModelSubscriptionStringInput
+  publicSlug: ModelSubscriptionStringInput
+  email: ModelSubscriptionStringInput
+  phone: ModelSubscriptionStringInput
+  role: ModelSubscriptionStringInput
+  avatarKey: ModelSubscriptionStringInput
+  taxId: ModelSubscriptionStringInput
+  cro: ModelSubscriptionStringInput
+  specialty: ModelSubscriptionStringInput
+  verified: ModelSubscriptionBooleanInput
+  rating: ModelSubscriptionFloatInput
+  totalReviews: ModelSubscriptionIntInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionUserFilterInput]
+  or: [ModelSubscriptionUserFilterInput]
+  owner: ModelStringInput
+}
+
+type Subscription {
+  onCreateUser(filter: ModelSubscriptionUserFilterInput, owner: String): User @aws_subscribe(mutations: ["createUser"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateUser(filter: ModelSubscriptionUserFilterInput, owner: String): User @aws_subscribe(mutations: ["updateUser"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteUser(filter: ModelSubscriptionUserFilterInput, owner: String): User @aws_subscribe(mutations: ["deleteUser"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onCreateConsultory(filter: ModelSubscriptionConsultoryFilterInput, ownerId: String): Consultory @aws_subscribe(mutations: ["createConsultory"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateConsultory(filter: ModelSubscriptionConsultoryFilterInput, ownerId: String): Consultory @aws_subscribe(mutations: ["updateConsultory"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteConsultory(filter: ModelSubscriptionConsultoryFilterInput, ownerId: String): Consultory @aws_subscribe(mutations: ["deleteConsultory"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onCreateBooking(filter: ModelSubscriptionBookingFilterInput, tenantId: String, ownerId: String): Booking @aws_subscribe(mutations: ["createBooking"]) @aws_iam @aws_cognito_user_pools
+  onUpdateBooking(filter: ModelSubscriptionBookingFilterInput, tenantId: String, ownerId: String): Booking @aws_subscribe(mutations: ["updateBooking"]) @aws_iam @aws_cognito_user_pools
+  onDeleteBooking(filter: ModelSubscriptionBookingFilterInput, tenantId: String, ownerId: String): Booking @aws_subscribe(mutations: ["deleteBooking"]) @aws_iam @aws_cognito_user_pools
+  onCreateAvailability(filter: ModelSubscriptionAvailabilityFilterInput): Availability @aws_subscribe(mutations: ["createAvailability"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateAvailability(filter: ModelSubscriptionAvailabilityFilterInput): Availability @aws_subscribe(mutations: ["updateAvailability"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteAvailability(filter: ModelSubscriptionAvailabilityFilterInput): Availability @aws_subscribe(mutations: ["deleteAvailability"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onCreateInspection(filter: ModelSubscriptionInspectionFilterInput): Inspection @aws_subscribe(mutations: ["createInspection"]) @aws_iam @aws_cognito_user_pools
+  onUpdateInspection(filter: ModelSubscriptionInspectionFilterInput): Inspection @aws_subscribe(mutations: ["updateInspection"]) @aws_iam @aws_cognito_user_pools
+  onDeleteInspection(filter: ModelSubscriptionInspectionFilterInput): Inspection @aws_subscribe(mutations: ["deleteInspection"]) @aws_iam @aws_cognito_user_pools
+  onCreateRoom(filter: ModelSubscriptionRoomFilterInput, ownerId: String): Room @aws_subscribe(mutations: ["createRoom"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateRoom(filter: ModelSubscriptionRoomFilterInput, ownerId: String): Room @aws_subscribe(mutations: ["updateRoom"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteRoom(filter: ModelSubscriptionRoomFilterInput, ownerId: String): Room @aws_subscribe(mutations: ["deleteRoom"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onCreateReview(filter: ModelSubscriptionReviewFilterInput): Review @aws_subscribe(mutations: ["createReview"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onUpdateReview(filter: ModelSubscriptionReviewFilterInput): Review @aws_subscribe(mutations: ["updateReview"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+  onDeleteReview(filter: ModelSubscriptionReviewFilterInput): Review @aws_subscribe(mutations: ["deleteReview"]) @aws_api_key @aws_iam @aws_cognito_user_pools
+}
+
+type ModelConsultoryConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Consultory]!
+  nextToken: String
+}
+
+input ModelConsultoryFilterInput {
+  name: ModelStringInput
+  publicSlug: ModelStringInput
+  description: ModelStringInput
+  neighborhood: ModelStringInput
+  city: ModelStringInput
+  state: ModelStringInput
+  address: ModelStringInput
+  zipCode: ModelStringInput
+  latitude: ModelFloatInput
+  longitude: ModelFloatInput
+  pricePerPeriod: ModelFloatInput
+  equipment: ModelStringInput
+  imageKeys: ModelStringInput
+  logoKey: ModelStringInput
+  periodMorning: ModelBooleanInput
+  periodAfternoon: ModelBooleanInput
+  periodEvening: ModelBooleanInput
+  featured: ModelBooleanInput
+  isPremium: ModelBooleanInput
+  premiumUntil: ModelStringInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  whatsappNumber: ModelStringInput
+  ownerId: ModelStringInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelConsultoryFilterInput]
+  or: [ModelConsultoryFilterInput]
+  not: ModelConsultoryFilterInput
+}
+
+input ModelConsultoryConditionInput {
+  name: ModelStringInput
+  publicSlug: ModelStringInput
+  description: ModelStringInput
+  neighborhood: ModelStringInput
+  city: ModelStringInput
+  state: ModelStringInput
+  address: ModelStringInput
+  zipCode: ModelStringInput
+  latitude: ModelFloatInput
+  longitude: ModelFloatInput
+  pricePerPeriod: ModelFloatInput
+  equipment: ModelStringInput
+  imageKeys: ModelStringInput
+  logoKey: ModelStringInput
+  periodMorning: ModelBooleanInput
+  periodAfternoon: ModelBooleanInput
+  periodEvening: ModelBooleanInput
+  featured: ModelBooleanInput
+  isPremium: ModelBooleanInput
+  premiumUntil: ModelStringInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  whatsappNumber: ModelStringInput
+  ownerId: ModelStringInput
+  and: [ModelConsultoryConditionInput]
+  or: [ModelConsultoryConditionInput]
+  not: ModelConsultoryConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateConsultoryInput {
+  name: String!
+  publicSlug: String
+  description: String
+  neighborhood: String!
+  city: String!
+  state: String!
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float!
+  equipment: [String]
+  imageKeys: [String]
+  logoKey: String
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  featured: Boolean
+  isPremium: Boolean
+  premiumUntil: AWSDateTime
+  rating: Float
+  totalReviews: Int
+  whatsappNumber: String
+  ownerId: String!
+  id: ID
+}
+
+input UpdateConsultoryInput {
+  name: String
+  publicSlug: String
+  description: String
+  neighborhood: String
+  city: String
+  state: String
+  address: String
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  pricePerPeriod: Float
+  equipment: [String]
+  imageKeys: [String]
+  logoKey: String
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  featured: Boolean
+  isPremium: Boolean
+  premiumUntil: AWSDateTime
+  rating: Float
+  totalReviews: Int
+  whatsappNumber: String
+  ownerId: String
+  id: ID!
+}
+
+input DeleteConsultoryInput {
+  id: ID!
+}
+
+input ModelSubscriptionConsultoryFilterInput {
+  name: ModelSubscriptionStringInput
+  publicSlug: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  neighborhood: ModelSubscriptionStringInput
+  city: ModelSubscriptionStringInput
+  state: ModelSubscriptionStringInput
+  address: ModelSubscriptionStringInput
+  zipCode: ModelSubscriptionStringInput
+  latitude: ModelSubscriptionFloatInput
+  longitude: ModelSubscriptionFloatInput
+  pricePerPeriod: ModelSubscriptionFloatInput
+  equipment: ModelSubscriptionStringInput
+  imageKeys: ModelSubscriptionStringInput
+  logoKey: ModelSubscriptionStringInput
+  periodMorning: ModelSubscriptionBooleanInput
+  periodAfternoon: ModelSubscriptionBooleanInput
+  periodEvening: ModelSubscriptionBooleanInput
+  featured: ModelSubscriptionBooleanInput
+  isPremium: ModelSubscriptionBooleanInput
+  premiumUntil: ModelSubscriptionStringInput
+  rating: ModelSubscriptionFloatInput
+  totalReviews: ModelSubscriptionIntInput
+  whatsappNumber: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionConsultoryFilterInput]
+  or: [ModelSubscriptionConsultoryFilterInput]
+  ownerId: ModelStringInput
+}
+
+type ModelBookingConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Booking]!
+  nextToken: String
+}
+
+input ModelBookingPeriodInput {
+  eq: BookingPeriod
+  ne: BookingPeriod
+}
+
+input ModelBookingStatusInput {
+  eq: BookingStatus
+  ne: BookingStatus
+}
+
+input ModelBookingFilterInput {
+  consultoryId: ModelIDInput
+  consultoryName: ModelStringInput
+  consultoryImage: ModelStringInput
+  tenantId: ModelStringInput
+  tenantName: ModelStringInput
+  ownerId: ModelStringInput
+  ownerName: ModelStringInput
+  date: ModelStringInput
+  period: ModelBookingPeriodInput
+  status: ModelBookingStatusInput
+  price: ModelFloatInput
+  completedAt: ModelStringInput
+  reviewedByTenant: ModelBooleanInput
+  reviewedByOwner: ModelBooleanInput
+  inspectedCheckIn: ModelBooleanInput
+  inspectedCheckOut: ModelBooleanInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelBookingFilterInput]
+  or: [ModelBookingFilterInput]
+  not: ModelBookingFilterInput
+}
+
+input ModelBookingConditionInput {
+  consultoryId: ModelIDInput
+  consultoryName: ModelStringInput
+  consultoryImage: ModelStringInput
+  tenantId: ModelStringInput
+  tenantName: ModelStringInput
+  ownerId: ModelStringInput
+  ownerName: ModelStringInput
+  date: ModelStringInput
+  period: ModelBookingPeriodInput
+  status: ModelBookingStatusInput
+  price: ModelFloatInput
+  completedAt: ModelStringInput
+  reviewedByTenant: ModelBooleanInput
+  reviewedByOwner: ModelBooleanInput
+  inspectedCheckIn: ModelBooleanInput
+  inspectedCheckOut: ModelBooleanInput
+  and: [ModelBookingConditionInput]
+  or: [ModelBookingConditionInput]
+  not: ModelBookingConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateBookingInput {
+  consultoryId: ID!
+  consultoryName: String!
+  consultoryImage: AWSURL
+  tenantId: String!
+  tenantName: String!
+  ownerId: String!
+  ownerName: String!
+  date: AWSDate!
+  period: BookingPeriod!
+  status: BookingStatus!
+  price: Float!
+  completedAt: AWSDateTime
+  reviewedByTenant: Boolean
+  reviewedByOwner: Boolean
+  inspectedCheckIn: Boolean
+  inspectedCheckOut: Boolean
+  id: ID
+}
+
+input UpdateBookingInput {
+  consultoryId: ID
+  consultoryName: String
+  consultoryImage: AWSURL
+  tenantId: String
+  tenantName: String
+  ownerId: String
+  ownerName: String
+  date: AWSDate
+  period: BookingPeriod
+  status: BookingStatus
+  price: Float
+  completedAt: AWSDateTime
+  reviewedByTenant: Boolean
+  reviewedByOwner: Boolean
+  inspectedCheckIn: Boolean
+  inspectedCheckOut: Boolean
+  id: ID!
+}
+
+input DeleteBookingInput {
+  id: ID!
+}
+
+input ModelSubscriptionBookingFilterInput {
+  consultoryId: ModelSubscriptionIDInput
+  consultoryName: ModelSubscriptionStringInput
+  consultoryImage: ModelSubscriptionStringInput
+  tenantName: ModelSubscriptionStringInput
+  ownerName: ModelSubscriptionStringInput
+  date: ModelSubscriptionStringInput
+  period: ModelSubscriptionStringInput
+  status: ModelSubscriptionStringInput
+  price: ModelSubscriptionFloatInput
+  completedAt: ModelSubscriptionStringInput
+  reviewedByTenant: ModelSubscriptionBooleanInput
+  reviewedByOwner: ModelSubscriptionBooleanInput
+  inspectedCheckIn: ModelSubscriptionBooleanInput
+  inspectedCheckOut: ModelSubscriptionBooleanInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionBookingFilterInput]
+  or: [ModelSubscriptionBookingFilterInput]
+  tenantId: ModelStringInput
+  ownerId: ModelStringInput
+}
+
+type ModelAvailabilityConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Availability]!
+  nextToken: String
+}
+
+input ModelAvailabilityStatusInput {
+  eq: AvailabilityStatus
+  ne: AvailabilityStatus
+}
+
+input ModelAvailabilityFilterInput {
+  consultoryId: ModelIDInput
+  date: ModelStringInput
+  period: ModelBookingPeriodInput
+  status: ModelAvailabilityStatusInput
+  blockedByBookingId: ModelIDInput
+  blockedReason: ModelStringInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelAvailabilityFilterInput]
+  or: [ModelAvailabilityFilterInput]
+  not: ModelAvailabilityFilterInput
+}
+
+input ModelAvailabilityConditionInput {
+  consultoryId: ModelIDInput
+  date: ModelStringInput
+  period: ModelBookingPeriodInput
+  status: ModelAvailabilityStatusInput
+  blockedByBookingId: ModelIDInput
+  blockedReason: ModelStringInput
+  and: [ModelAvailabilityConditionInput]
+  or: [ModelAvailabilityConditionInput]
+  not: ModelAvailabilityConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateAvailabilityInput {
+  consultoryId: ID!
+  date: AWSDate!
+  period: BookingPeriod!
+  status: AvailabilityStatus!
+  blockedByBookingId: ID
+  blockedReason: String
+  id: ID
+}
+
+input UpdateAvailabilityInput {
+  consultoryId: ID
+  date: AWSDate
+  period: BookingPeriod
+  status: AvailabilityStatus
+  blockedByBookingId: ID
+  blockedReason: String
+  id: ID!
+}
+
+input DeleteAvailabilityInput {
+  id: ID!
+}
+
+input ModelSubscriptionAvailabilityFilterInput {
+  consultoryId: ModelSubscriptionIDInput
+  date: ModelSubscriptionStringInput
+  period: ModelSubscriptionStringInput
+  status: ModelSubscriptionStringInput
+  blockedByBookingId: ModelSubscriptionIDInput
+  blockedReason: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionAvailabilityFilterInput]
+  or: [ModelSubscriptionAvailabilityFilterInput]
+}
+
+type ModelInspectionConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Inspection]!
+  nextToken: String
+}
+
+input ModelInspectionTypeInput {
+  eq: InspectionType
+  ne: InspectionType
+}
+
+input ModelInspectionFilterInput {
+  bookingId: ModelIDInput
+  consultoryId: ModelIDInput
+  createdById: ModelStringInput
+  createdByName: ModelStringInput
+  type: ModelInspectionTypeInput
+  findingsJson: ModelStringInput
+  issueCount: ModelIntInput
+  photoKeys: ModelStringInput
+  inspectedAt: ModelStringInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelInspectionFilterInput]
+  or: [ModelInspectionFilterInput]
+  not: ModelInspectionFilterInput
+}
+
+input ModelInspectionConditionInput {
+  bookingId: ModelIDInput
+  consultoryId: ModelIDInput
+  createdById: ModelStringInput
+  createdByName: ModelStringInput
+  type: ModelInspectionTypeInput
+  findingsJson: ModelStringInput
+  issueCount: ModelIntInput
+  photoKeys: ModelStringInput
+  inspectedAt: ModelStringInput
+  and: [ModelInspectionConditionInput]
+  or: [ModelInspectionConditionInput]
+  not: ModelInspectionConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateInspectionInput {
+  bookingId: ID!
+  consultoryId: ID!
+  createdById: String!
+  createdByName: String!
+  type: InspectionType!
+  findingsJson: String!
+  issueCount: Int
+  photoKeys: [String]
+  inspectedAt: AWSDateTime!
+  id: ID
+}
+
+input UpdateInspectionInput {
+  bookingId: ID
+  consultoryId: ID
+  createdById: String
+  createdByName: String
+  type: InspectionType
+  findingsJson: String
+  issueCount: Int
+  photoKeys: [String]
+  inspectedAt: AWSDateTime
+  id: ID!
+}
+
+input DeleteInspectionInput {
+  id: ID!
+}
+
+input ModelSubscriptionInspectionFilterInput {
+  bookingId: ModelSubscriptionIDInput
+  consultoryId: ModelSubscriptionIDInput
+  createdById: ModelSubscriptionStringInput
+  createdByName: ModelSubscriptionStringInput
+  type: ModelSubscriptionStringInput
+  findingsJson: ModelSubscriptionStringInput
+  issueCount: ModelSubscriptionIntInput
+  photoKeys: ModelSubscriptionStringInput
+  inspectedAt: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionInspectionFilterInput]
+  or: [ModelSubscriptionInspectionFilterInput]
+}
+
+type ModelRoomConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Room]!
+  nextToken: String
+}
+
+input ModelRoomFilterInput {
+  consultoryId: ModelIDInput
+  ownerId: ModelStringInput
+  name: ModelStringInput
+  description: ModelStringInput
+  pricePerPeriod: ModelFloatInput
+  equipment: ModelStringInput
+  imageKeys: ModelStringInput
+  periodMorning: ModelBooleanInput
+  periodAfternoon: ModelBooleanInput
+  periodEvening: ModelBooleanInput
+  available: ModelBooleanInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelRoomFilterInput]
+  or: [ModelRoomFilterInput]
+  not: ModelRoomFilterInput
+}
+
+input ModelRoomConditionInput {
+  consultoryId: ModelIDInput
+  ownerId: ModelStringInput
+  name: ModelStringInput
+  description: ModelStringInput
+  pricePerPeriod: ModelFloatInput
+  equipment: ModelStringInput
+  imageKeys: ModelStringInput
+  periodMorning: ModelBooleanInput
+  periodAfternoon: ModelBooleanInput
+  periodEvening: ModelBooleanInput
+  available: ModelBooleanInput
+  rating: ModelFloatInput
+  totalReviews: ModelIntInput
+  and: [ModelRoomConditionInput]
+  or: [ModelRoomConditionInput]
+  not: ModelRoomConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateRoomInput {
+  consultoryId: ID!
+  ownerId: String!
+  name: String!
+  description: String
+  pricePerPeriod: Float!
+  equipment: [String]
+  imageKeys: [String]
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  available: Boolean
+  rating: Float
+  totalReviews: Int
+  id: ID
+}
+
+input UpdateRoomInput {
+  consultoryId: ID
+  ownerId: String
+  name: String
+  description: String
+  pricePerPeriod: Float
+  equipment: [String]
+  imageKeys: [String]
+  periodMorning: Boolean
+  periodAfternoon: Boolean
+  periodEvening: Boolean
+  available: Boolean
+  rating: Float
+  totalReviews: Int
+  id: ID!
+}
+
+input DeleteRoomInput {
+  id: ID!
+}
+
+input ModelSubscriptionRoomFilterInput {
+  consultoryId: ModelSubscriptionIDInput
+  name: ModelSubscriptionStringInput
+  description: ModelSubscriptionStringInput
+  pricePerPeriod: ModelSubscriptionFloatInput
+  equipment: ModelSubscriptionStringInput
+  imageKeys: ModelSubscriptionStringInput
+  periodMorning: ModelSubscriptionBooleanInput
+  periodAfternoon: ModelSubscriptionBooleanInput
+  periodEvening: ModelSubscriptionBooleanInput
+  available: ModelSubscriptionBooleanInput
+  rating: ModelSubscriptionFloatInput
+  totalReviews: ModelSubscriptionIntInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionRoomFilterInput]
+  or: [ModelSubscriptionRoomFilterInput]
+  ownerId: ModelStringInput
+}
+
+type ModelReviewConnection @aws_api_key @aws_iam @aws_cognito_user_pools {
+  items: [Review]!
+  nextToken: String
+}
+
+input ModelReviewTypeInput {
+  eq: ReviewType
+  ne: ReviewType
+}
+
+input ModelReviewFilterInput {
+  bookingId: ModelIDInput
+  consultoryId: ModelIDInput
+  fromUserId: ModelStringInput
+  fromUserName: ModelStringInput
+  toUserId: ModelStringInput
+  toUserName: ModelStringInput
+  rating: ModelIntInput
+  comment: ModelStringInput
+  reviewDate: ModelStringInput
+  type: ModelReviewTypeInput
+  id: ModelIDInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+  and: [ModelReviewFilterInput]
+  or: [ModelReviewFilterInput]
+  not: ModelReviewFilterInput
+}
+
+input ModelReviewConditionInput {
+  bookingId: ModelIDInput
+  consultoryId: ModelIDInput
+  fromUserId: ModelStringInput
+  fromUserName: ModelStringInput
+  toUserId: ModelStringInput
+  toUserName: ModelStringInput
+  rating: ModelIntInput
+  comment: ModelStringInput
+  reviewDate: ModelStringInput
+  type: ModelReviewTypeInput
+  and: [ModelReviewConditionInput]
+  or: [ModelReviewConditionInput]
+  not: ModelReviewConditionInput
+  createdAt: ModelStringInput
+  updatedAt: ModelStringInput
+}
+
+input CreateReviewInput {
+  bookingId: ID!
+  consultoryId: ID!
+  fromUserId: String!
+  fromUserName: String!
+  toUserId: String!
+  toUserName: String
+  rating: Int!
+  comment: String
+  reviewDate: AWSDate!
+  type: ReviewType!
+  id: ID
+}
+
+input UpdateReviewInput {
+  bookingId: ID
+  consultoryId: ID
+  fromUserId: String
+  fromUserName: String
+  toUserId: String
+  toUserName: String
+  rating: Int
+  comment: String
+  reviewDate: AWSDate
+  type: ReviewType
+  id: ID!
+}
+
+input DeleteReviewInput {
+  id: ID!
+}
+
+input ModelSubscriptionReviewFilterInput {
+  bookingId: ModelSubscriptionIDInput
+  consultoryId: ModelSubscriptionIDInput
+  fromUserId: ModelSubscriptionStringInput
+  fromUserName: ModelSubscriptionStringInput
+  toUserId: ModelSubscriptionStringInput
+  toUserName: ModelSubscriptionStringInput
+  rating: ModelSubscriptionIntInput
+  comment: ModelSubscriptionStringInput
+  reviewDate: ModelSubscriptionStringInput
+  type: ModelSubscriptionStringInput
+  id: ModelSubscriptionIDInput
+  createdAt: ModelSubscriptionStringInput
+  updatedAt: ModelSubscriptionStringInput
+  and: [ModelSubscriptionReviewFilterInput]
+  or: [ModelSubscriptionReviewFilterInput]
+}

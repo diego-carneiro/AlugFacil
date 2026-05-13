@@ -7,8 +7,8 @@ import type { UserRole } from "../../types/user";
 import { setPendingConfirmation } from "../../lib/auth/pendingConfirmation";
 
 const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
-  tenant: "/dashboard/locatario",
-  owner: "/dashboard/proprietario",
+  tenant: "/dashboard/tenant",
+  owner: "/dashboard/owner",
   admin: "/dashboard/admin",
 };
 
@@ -34,7 +34,7 @@ export default function Login() {
 
       if (message.includes("ainda não foi confirmada")) {
         setPendingConfirmation({ email });
-        navigate("/confirmar-cadastro");
+        navigate("/confirm-registration");
         return;
       }
 
@@ -131,7 +131,7 @@ export default function Login() {
 
           <p className="text-center text-sm text-neutral-500 mt-8">
             Não tem conta?{" "}
-            <Link to="/cadastro" className="text-primary-500 font-medium hover:underline">
+            <Link to="/register" className="text-primary-500 font-medium hover:underline">
               Criar conta grátis
             </Link>
           </p>

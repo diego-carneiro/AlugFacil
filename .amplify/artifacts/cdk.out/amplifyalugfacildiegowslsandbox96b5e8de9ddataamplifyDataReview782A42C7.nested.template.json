@@ -1061,7 +1061,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "MutationcreateReviewauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/c7ee0989339d4e6379a563cabf8ba1088880f358e7b3715d90a96b8d6abe1c38.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/50b4c9d9dea3d4923fd9f0a38d1aef25f2a5337e503f1c47b8449f6b6223767f.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1275,7 +1275,7 @@
      "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1f5fed297da9c32ae3af922bf3a38ccf23b956078887d16891ec06c20c64722c.vtl"
     },
     "ResponseMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f63f6f97fbefd8e4074b105ffc3375c9ff76371f24b602fff66d2ace9539d391.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/41bedc339f8bec34d27fafad8b266d34196786afe29ea0c2a989d1283be7f790.vtl"
     }
    },
    "DependsOn": [

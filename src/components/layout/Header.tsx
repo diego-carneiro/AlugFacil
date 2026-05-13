@@ -14,14 +14,14 @@ import { useAuth } from "../../context/AuthContext";
 
 const navLinks = [
   { to: "/", label: "Início" },
-  { to: "/consultorios", label: "Consultórios" },
-  { to: "/sobre", label: "Sobre" },
-  { to: "/contato", label: "Contato" },
+  { to: "/clinics", label: "Consultórios" },
+  { to: "/about", label: "Sobre" },
+  { to: "/contact", label: "Contato" },
 ];
 
 const DASHBOARD_BY_ROLE = {
-  tenant: "/dashboard/locatario",
-  owner: "/dashboard/proprietario",
+  tenant: "/dashboard/tenant",
+  owner: "/dashboard/owner",
   admin: "/dashboard/admin",
 };
 
@@ -40,7 +40,7 @@ export default function Header() {
 
   const dashboardPath = currentUser
     ? DASHBOARD_BY_ROLE[currentUser.role]
-    : "/entrar";
+    : "/login";
 
   const initials =
     currentUser?.name
@@ -161,13 +161,13 @@ export default function Header() {
           ) : (
             <>
               <Link
-                to="/entrar"
+                to="/login"
                 className="text-sm font-medium text-neutral-600 hover:text-primary-500 transition-colors"
               >
                 Entrar
               </Link>
               <Link
-                to="/cadastro"
+                to="/register"
                 className="inline-flex items-center gap-2 bg-primary-500 text-white px-4 py-2 rounded-xl text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
               >
                 Criar conta
@@ -251,14 +251,14 @@ export default function Header() {
                 ) : (
                   <>
                     <Link
-                      to="/entrar"
+                      to="/login"
                       onClick={() => setMenuOpen(false)}
                       className="border border-neutral-200 text-neutral-700 px-4 py-3 rounded-xl text-sm font-medium text-center"
                     >
                       Entrar
                     </Link>
                     <Link
-                      to="/cadastro"
+                      to="/register"
                       onClick={() => setMenuOpen(false)}
                       className="bg-primary-500 text-white px-4 py-3 rounded-xl text-sm font-display font-semibold text-center"
                     >

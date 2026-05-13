@@ -1,4 +1,10 @@
-import { a, defineData, type ClientSchema } from "@aws-amplify/backend";
+import { a, defineData, defineFunction, type ClientSchema } from "@aws-amplify/backend";
+
+const submitBookingReview = defineFunction({
+  name: "submit-booking-review",
+  entry: "./submit-booking-review/handler.ts",
+  runtime: 20,
+});
 
 const schema = a.schema({
   BookingPeriod: a.enum(["morning", "afternoon", "evening"]),
@@ -6,13 +12,67 @@ const schema = a.schema({
   AvailabilityStatus: a.enum(["available", "blocked", "booked"]),
   InspectionType: a.enum(["check_in", "check_out"]),
   ReviewType: a.enum(["tenant_to_consultory", "owner_to_tenant"]),
+  ReviewSubmissionResult: a.customType({
+    id: a.id().required(),
+    bookingId: a.id().required(),
+    consultoryId: a.id().required(),
+    fromUserId: a.string().required(),
+    fromUserName: a.string().required(),
+    toUserId: a.string().required(),
+    toUserName: a.string(),
+    rating: a.integer().required(),
+    comment: a.string(),
+    reviewDate: a.date().required(),
+    type: a.ref("ReviewType").required(),
+  }),
+
+  submitBookingReview: a
+    .mutation()
+    .arguments({
+      bookingId: a.id().required(),
+      rating: a.integer().required(),
+      comment: a.string(),
+    })
+    .returns(a.ref("ReviewSubmissionResult"))
+    .handler(a.handler.function(submitBookingReview))
+    .authorization((allow) => [allow.authenticated()]),
 
   User: a
     .model({
-      cognitoId: a.string().required(),
-      name: a.string().required(),
+      owner: a
+        .string()
+        .authorization((allow) => [
+          allow.owner().to(["read", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      cognitoId: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.owner().to(["create", "read", "delete"]),
+          allow.groups(["ADMIN"]),
+          allow.publicApiKey().to(["read"]),
+          allow.authenticated().to(["read"]),
+        ]),
+      name: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.owner().to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+          allow.publicApiKey().to(["read"]),
+          allow.authenticated().to(["read"]),
+        ]),
       publicSlug: a.string(),
-      email: a.email().required(),
+      email: a
+        .email()
+        .required()
+        .authorization((allow) => [
+          allow.owner().to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+          allow.publicApiKey().to(["read"]),
+          allow.authenticated().to(["read"]),
+        ]),
       phone: a.phone(),
       role: a.enum(["TENANT", "OWNER", "ADMIN"]),
       avatarKey: a.string(),
@@ -34,17 +94,52 @@ const schema = a.schema({
 
   Consultory: a
     .model({
-      name: a.string().required(),
+      name: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
       publicSlug: a.string(),
       description: a.string(),
-      neighborhood: a.string().required(),
-      city: a.string().required(),
-      state: a.string().required(),
+      neighborhood: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      city: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      state: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
       address: a.string(),
       zipCode: a.string(),
       latitude: a.float(),
       longitude: a.float(),
-      pricePerPeriod: a.float().required(),
+      pricePerPeriod: a
+        .float()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
       equipment: a.string().array(),
       imageKeys: a.string().array(),
       logoKey: a.string(),
@@ -57,7 +152,14 @@ const schema = a.schema({
       rating: a.float().default(0),
       totalReviews: a.integer().default(0),
       whatsappNumber: a.string(),
-      ownerId: a.string().required(),
+      ownerId: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
       ownerProfile: a.belongsTo("User", "ownerId"),
       bookings: a.hasMany("Booking", "consultoryId"),
       availabilities: a.hasMany("Availability", "consultoryId"),
@@ -73,18 +175,89 @@ const schema = a.schema({
 
   Booking: a
     .model({
-      consultoryId: a.id().required(),
+      consultoryId: a
+        .id()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
       consultory: a.belongsTo("Consultory", "consultoryId"),
-      consultoryName: a.string().required(),
+      consultoryName: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
       consultoryImage: a.url(),
-      tenantId: a.string().required(),
-      tenantName: a.string().required(),
-      ownerId: a.string().required(),
-      ownerName: a.string().required(),
-      date: a.date().required(),
-      period: a.ref("BookingPeriod").required(),
-      status: a.ref("BookingStatus").required(),
-      price: a.float().required(),
+      tenantId: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      tenantName: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      ownerId: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      ownerName: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      date: a
+        .date()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      period: a
+        .ref("BookingPeriod")
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      status: a
+        .ref("BookingStatus")
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      price: a
+        .float()
+        .required()
+        .authorization((allow) => [
+          allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update", "delete"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      completedAt: a.datetime(),
       reviewedByTenant: a.boolean().default(false),
       reviewedByOwner: a.boolean().default(false),
       inspectedCheckIn: a.boolean().default(false),
@@ -93,7 +266,8 @@ const schema = a.schema({
       reviews: a.hasMany("Review", "bookingId"),
     })
     .authorization((allow) => [
-      allow.authenticated(),
+      allow.ownerDefinedIn("tenantId").identityClaim("sub").to(["create", "read", "update"]),
+      allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["read", "update"]),
       allow.groups(["ADMIN"]),
     ]),
 
@@ -134,12 +308,44 @@ const schema = a.schema({
 
   Room: a
     .model({
-      consultoryId: a.id().required(),
+      consultoryId: a
+        .id()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.authenticated().to(["read"]),
+          allow.groups(["ADMIN"]),
+        ]),
       consultory: a.belongsTo("Consultory", "consultoryId"),
-      ownerId: a.string().required(),
-      name: a.string().required(),
+      ownerId: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "delete"]),
+          allow.authenticated().to(["read"]),
+          allow.groups(["ADMIN"]),
+        ]),
+      name: a
+        .string()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.authenticated().to(["read"]),
+          allow.groups(["ADMIN"]),
+        ]),
       description: a.string(),
-      pricePerPeriod: a.float().required(),
+      pricePerPeriod: a
+        .float()
+        .required()
+        .authorization((allow) => [
+          allow.publicApiKey().to(["read"]),
+          allow.ownerDefinedIn("ownerId").identityClaim("sub").to(["create", "read", "update", "delete"]),
+          allow.authenticated().to(["read"]),
+          allow.groups(["ADMIN"]),
+        ]),
       equipment: a.string().array(),
       imageKeys: a.string().array(),
       periodMorning: a.boolean().default(false),
@@ -173,7 +379,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.publicApiKey().to(["read"]),
-      allow.authenticated().to(["create", "read", "update"]),
+      allow.authenticated().to(["read"]),
       allow.groups(["ADMIN"]),
     ]),
 });

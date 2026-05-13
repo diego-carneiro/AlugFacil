@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, Check, Stethoscope, Building2, Eye, EyeOff } fro
 import { useAuth } from "../../context/AuthContext";
 import type { UserRole } from "../../types/user";
 import { createConsultory } from "../../lib/api/consultories";
-import { uploadConsultoryImages } from "../../lib/storage/media";
+import { MAX_CONSULTORY_IMAGES, uploadConsultoryImages } from "../../lib/storage/media";
 
 type Step = 1 | 2 | 3;
 
@@ -58,8 +58,6 @@ const EQUIPMENT_OPTIONS = [
   "Estacionamento",
   "Recepção equipada",
 ];
-
-const MAX_CONSULTORY_IMAGES = 8;
 
 const STEP_LABELS: Record<Step, string> = {
   1: "Tipo de conta",
@@ -259,7 +257,7 @@ export default function Register() {
       } catch {
         // ignore when there is no active session
       }
-      navigate("/entrar", { replace: true });
+      navigate("/login", { replace: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Nao foi possivel concluir o cadastro.";
       setError(message);
@@ -734,7 +732,7 @@ export default function Register() {
               </button>
             ) : (
               <Link
-                to="/entrar"
+                to="/login"
                 className="text-sm text-neutral-500 hover:text-neutral-800 transition-colors"
               >
                 Já tenho conta

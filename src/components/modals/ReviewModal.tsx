@@ -5,7 +5,6 @@ import Modal from "../ui/Modal";
 import StarRating from "../ui/StarRating";
 import type { Booking } from "../../types/booking";
 import { createReview } from "../../lib/api/reviews";
-import { updateBooking } from "../../lib/api/bookings";
 import { useAuth } from "../../context/AuthContext";
 
 interface ReviewModalProps {
@@ -47,20 +46,8 @@ export default function ReviewModal({
     try {
       await createReview({
         bookingId: booking.id,
-        consultoryId: booking.consultoryId,
-        fromUserId: currentUser.id,
-        fromUserName: currentUser.name,
-        toUserId: reviewerRole === "tenant" ? booking.consultoryId : booking.tenantId,
-        toUserName: reviewerRole === "tenant" ? booking.consultoryName : booking.tenantName,
         rating,
         comment,
-        type: reviewerRole === "tenant" ? "tenant_to_consultory" : "owner_to_tenant",
-        reviewDate: new Date().toISOString().slice(0, 10),
-      });
-
-      await updateBooking(booking.id, {
-        reviewedByTenant: reviewerRole === "tenant" ? true : booking.reviewedByTenant,
-        reviewedByOwner: reviewerRole === "owner" ? true : booking.reviewedByOwner,
       });
 
       setSubmitted(true);

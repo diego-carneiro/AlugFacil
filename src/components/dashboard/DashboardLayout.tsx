@@ -71,7 +71,7 @@ export default function DashboardLayout({
 
   const profilePath =
     currentUser?.role === "owner"
-      ? "/dashboard/proprietario/perfil"
+      ? "/dashboard/owner/profile"
       : "/profile";
 
   const AvatarContent = ({ size = "md" }: { size?: "sm" | "md" }) => {
@@ -97,7 +97,7 @@ export default function DashboardLayout({
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo + close button */}
-      <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+      <div className="relative h-16 px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <span className="text-xl">🦷</span>
           <span className="font-display font-bold text-lg text-primary-500">AlugFácil</span>
@@ -109,6 +109,7 @@ export default function DashboardLayout({
         >
           <X size={16} />
         </button>
+        <div className="pointer-events-none absolute bottom-0 left-4 right-4 h-px bg-neutral-200/90" />
       </div>
 
       {/* Nav */}
@@ -182,7 +183,7 @@ export default function DashboardLayout({
             animate={{ x: 0 }}
             exit={{ x: -SIDEBAR_WIDTH }}
             transition={ANIM}
-            className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-neutral-100 fixed inset-y-0 left-0 z-30"
+            className="hidden lg:flex flex-col w-64 shrink-0 bg-white border-r border-neutral-200 fixed inset-y-0 left-0 z-30"
           >
             <SidebarContent />
           </motion.aside>
@@ -220,7 +221,7 @@ export default function DashboardLayout({
         transition={ANIM}
       >
         {/* Top bar */}
-        <header className="bg-white border-b border-neutral-100 px-6 h-16 flex items-center gap-3 sticky top-0 z-20">
+        <header className="bg-white px-6 h-16 flex items-center gap-3 sticky top-0 z-20">
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileOpen(true)}
@@ -257,7 +258,7 @@ export default function DashboardLayout({
         </header>
 
         {/* Page content */}
-        <main className="flex-1 p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-6 lg:p-8 bg-neutral-100/60">{children}</main>
       </motion.div>
     </div>
   );

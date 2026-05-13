@@ -28,6 +28,7 @@ function mapBackendBooking(item: Record<string, unknown>): Booking {
     period: String(item.period ?? "morning") as BookingPeriod,
     status: String(item.status ?? "pending") as BookingStatus,
     price: Number(item.price ?? 0),
+    completedAt: typeof item.completedAt === "string" ? item.completedAt : undefined,
     reviewedByTenant: Boolean(item.reviewedByTenant),
     reviewedByOwner: Boolean(item.reviewedByOwner),
     inspectedCheckIn: Boolean(item.inspectedCheckIn),
@@ -119,6 +120,7 @@ export async function createBooking(input: {
     period: input.period,
     status: "pending",
     price: input.consultory.pricePerPeriod,
+    completedAt: undefined,
     reviewedByTenant: false,
     reviewedByOwner: false,
     inspectedCheckIn: false,
@@ -148,6 +150,7 @@ export async function updateBooking(id: string, patch: Partial<Booking>): Promis
   const updated = await api.models.Booking.update({
     id,
     status: patch.status,
+    completedAt: patch.completedAt,
     reviewedByTenant: patch.reviewedByTenant,
     reviewedByOwner: patch.reviewedByOwner,
     inspectedCheckIn: patch.inspectedCheckIn,

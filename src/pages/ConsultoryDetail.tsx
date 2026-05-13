@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import {
   MapPin,
@@ -20,7 +20,10 @@ import Button from "../components/ui/Button";
 import BookingModal from "../components/modals/BookingModal";
 import StarRating from "../components/ui/StarRating";
 import type { Consultory } from "../types/consultory";
-import { getConsultoryById, listRelatedConsultories } from "../lib/api/consultories";
+import {
+  getConsultoryById,
+  listRelatedConsultories,
+} from "../lib/api/consultories";
 import { listReviewsByConsultory } from "../lib/api/reviews";
 import type { Review } from "../types/review";
 
@@ -37,6 +40,7 @@ const periodLabels = {
 
 export default function ConsultoryDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [consultory, setConsultory] = useState<Consultory | null>(null);
   const [others, setOthers] = useState<Consultory[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -72,6 +76,15 @@ export default function ConsultoryDetail() {
     };
   }, [id]);
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    navigate("/clinics");
+  };
+
   if (isLoading) {
     return (
       <section className="pt-28 pb-20">
@@ -91,9 +104,13 @@ export default function ConsultoryDetail() {
           <h1 className="text-2xl font-bold text-neutral-800 mb-4">
             Consultório não encontrado
           </h1>
-          <Link to="/consultorios" className="text-primary-500 hover:underline">
-            Voltar para consultórios
-          </Link>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="text-primary-500 hover:underline"
+          >
+            Voltar
+          </button>
         </Container>
       </section>
     );
@@ -103,23 +120,25 @@ export default function ConsultoryDetail() {
     setCurrentImage((prev) => (prev + 1) % consultory.images.length);
   const prevImage = () =>
     setCurrentImage(
-      (prev) => (prev - 1 + consultory.images.length) % consultory.images.length
+      (prev) =>
+        (prev - 1 + consultory.images.length) % consultory.images.length,
     );
 
-  const availablePeriods = (Object.keys(consultory.periods) as Array<keyof typeof consultory.periods>).filter(
-    p => consultory.periods[p]
-  );
+  const availablePeriods = (
+    Object.keys(consultory.periods) as Array<keyof typeof consultory.periods>
+  ).filter((p) => consultory.periods[p]);
 
   return (
     <section className="pt-28 pb-20 lg:pt-36 lg:pb-30">
       <Container>
-        <Link
-          to="/consultorios"
+        <button
+          type="button"
+          onClick={handleBack}
           className="inline-flex items-center gap-2 text-neutral-500 hover:text-primary-500 mb-8 transition-colors"
         >
           <ArrowLeft size={18} />
-          Voltar para consultórios
-        </Link>
+          Voltar
+        </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
           {/* Images */}
@@ -182,7 +201,9 @@ export default function ConsultoryDetail() {
                   key={idx}
                   onClick={() => setCurrentImage(idx)}
                   className={`shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-colors ${
-                    idx === currentImage ? "border-primary-500" : "border-transparent"
+                    idx === currentImage
+                      ? "border-primary-500"
+                      : "border-transparent"
                   }`}
                 >
                   <img
@@ -200,7 +221,11 @@ export default function ConsultoryDetail() {
                   Avaliações
                 </h3>
                 <div className="flex items-center gap-1.5">
-                  <StarRating value={Math.round(consultory.rating)} readonly size={16} />
+                  <StarRating
+                    value={Math.round(consultory.rating)}
+                    readonly
+                    size={16}
+                  />
                   <span className="font-display font-bold text-neutral-800">
                     {consultory.rating}
                   </span>
@@ -236,7 +261,9 @@ export default function ConsultoryDetail() {
                             <p className="text-sm font-medium text-neutral-800">
                               {review.fromUserName}
                             </p>
-                            <p className="text-xs text-neutral-400">{review.reviewDate}</p>
+                            <p className="text-xs text-neutral-400">
+                              {review.reviewDate}
+                            </p>
                           </div>
                         </div>
                         <StarRating value={review.rating} readonly size={14} />
@@ -267,7 +294,11 @@ export default function ConsultoryDetail() {
                 </div>
               </div>
               <div className="flex items-center gap-2 mb-6">
-                <StarRating value={Math.round(consultory.rating)} readonly size={15} />
+                <StarRating
+                  value={Math.round(consultory.rating)}
+                  readonly
+                  size={15}
+                />
                 <span className="text-sm font-medium text-neutral-700">
                   {consultory.rating}
                 </span>
@@ -277,7 +308,9 @@ export default function ConsultoryDetail() {
               </div>
 
               <div className="bg-primary-50 rounded-2xl p-6 mb-6">
-                <span className="text-sm text-neutral-500">Valor por período</span>
+                <span className="text-sm text-neutral-500">
+                  Valor por período
+                </span>
                 <p className="font-display font-bold text-4xl text-primary-500">
                   R$ {consultory.pricePerPeriod}
                 </p>
@@ -293,7 +326,7 @@ export default function ConsultoryDetail() {
                   Períodos disponíveis
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {availablePeriods.map(p => (
+                  {availablePeriods.map((p) => (
                     <div
                       key={p}
                       className="flex items-center gap-1.5 bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-1.5 text-xs text-neutral-600"
@@ -312,7 +345,7 @@ export default function ConsultoryDetail() {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {consultory.equipment.map((eq) => (
-                    <Badge key={eq}>{eq}</Badge>
+                    <Badge key={eq} className="font-display">{eq}</Badge>
                   ))}
                 </div>
               </div>
@@ -358,7 +391,10 @@ export default function ConsultoryDetail() {
                           {c.name}
                         </h3>
                         <div className="flex items-center gap-1 text-xs text-neutral-500 shrink-0">
-                          <Star size={11} className="text-accent-400 fill-accent-400" />
+                          <Star
+                            size={11}
+                            className="text-accent-400 fill-accent-400"
+                          />
                           {c.rating}
                         </div>
                       </div>
@@ -368,7 +404,10 @@ export default function ConsultoryDetail() {
                       </div>
                       <p className="font-display font-bold text-primary-500">
                         R$ {c.pricePerPeriod}
-                        <span className="text-sm font-normal text-neutral-400"> / período</span>
+                        <span className="text-sm font-normal text-neutral-400">
+                          {" "}
+                          / período
+                        </span>
                       </p>
                     </div>
                   </Card>
@@ -383,7 +422,10 @@ export default function ConsultoryDetail() {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-100 p-4 lg:hidden z-40">
         <Button
           href="#"
-          onClick={(e) => { e.preventDefault(); setBookingOpen(true); }}
+          onClick={(e) => {
+            e.preventDefault();
+            setBookingOpen(true);
+          }}
           size="lg"
           className="w-full"
         >

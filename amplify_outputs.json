@@ -353,6 +353,13 @@
               "attributes": [],
               "isArrayNullable": true
             },
+            "logoKey": {
+              "name": "logoKey",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
             "periodMorning": {
               "name": "periodMorning",
               "isArray": false,
@@ -502,6 +509,22 @@
                 ]
               }
             },
+            "rooms": {
+              "name": "rooms",
+              "isArray": true,
+              "type": {
+                "model": "Room"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "consultoryId"
+                ]
+              }
+            },
             "createdAt": {
               "name": "createdAt",
               "isArray": false,
@@ -543,6 +566,7 @@
                     "allow": "owner",
                     "operations": [
                       "create",
+                      "read",
                       "update",
                       "delete"
                     ],
@@ -678,6 +702,13 @@
               "isRequired": true,
               "attributes": []
             },
+            "completedAt": {
+              "name": "completedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": []
+            },
             "reviewedByTenant": {
               "name": "reviewedByTenant",
               "isArray": false,
@@ -767,13 +798,25 @@
               "properties": {
                 "rules": [
                   {
-                    "allow": "private",
+                    "provider": "userPools",
+                    "ownerField": "tenantId",
+                    "allow": "owner",
                     "operations": [
                       "create",
-                      "update",
-                      "delete",
-                      "read"
-                    ]
+                      "read",
+                      "update"
+                    ],
+                    "identityClaim": "sub"
+                  },
+                  {
+                    "provider": "userPools",
+                    "ownerField": "ownerId",
+                    "allow": "owner",
+                    "operations": [
+                      "read",
+                      "update"
+                    ],
+                    "identityClaim": "sub"
                   },
                   {
                     "groupClaim": "cognito:groups",
@@ -1105,6 +1148,201 @@
             "sortKeyFieldNames": []
           }
         },
+        "Room": {
+          "name": "Room",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "consultoryId": {
+              "name": "consultoryId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "consultory": {
+              "name": "consultory",
+              "isArray": false,
+              "type": {
+                "model": "Consultory"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "consultoryId"
+                ]
+              }
+            },
+            "ownerId": {
+              "name": "ownerId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "description": {
+              "name": "description",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "pricePerPeriod": {
+              "name": "pricePerPeriod",
+              "isArray": false,
+              "type": "Float",
+              "isRequired": true,
+              "attributes": []
+            },
+            "equipment": {
+              "name": "equipment",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "imageKeys": {
+              "name": "imageKeys",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "periodMorning": {
+              "name": "periodMorning",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "periodAfternoon": {
+              "name": "periodAfternoon",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "periodEvening": {
+              "name": "periodEvening",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "available": {
+              "name": "available",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "rating": {
+              "name": "rating",
+              "isArray": false,
+              "type": "Float",
+              "isRequired": false,
+              "attributes": []
+            },
+            "totalReviews": {
+              "name": "totalReviews",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Rooms",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read"
+                    ]
+                  },
+                  {
+                    "provider": "userPools",
+                    "ownerField": "ownerId",
+                    "allow": "owner",
+                    "operations": [
+                      "create",
+                      "read",
+                      "update",
+                      "delete"
+                    ],
+                    "identityClaim": "sub"
+                  },
+                  {
+                    "allow": "private",
+                    "operations": [
+                      "read"
+                    ]
+                  },
+                  {
+                    "groupClaim": "cognito:groups",
+                    "provider": "userPools",
+                    "allow": "groups",
+                    "groups": [
+                      "ADMIN"
+                    ],
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
         "Review": {
           "name": "Review",
           "fields": {
@@ -1255,9 +1493,7 @@
                   {
                     "allow": "private",
                     "operations": [
-                      "create",
-                      "read",
-                      "update"
+                      "read"
                     ]
                   },
                   {
@@ -1334,7 +1570,122 @@
           ]
         }
       },
-      "nonModels": {}
+      "nonModels": {
+        "ReviewSubmissionResult": {
+          "name": "ReviewSubmissionResult",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "bookingId": {
+              "name": "bookingId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "consultoryId": {
+              "name": "consultoryId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "fromUserId": {
+              "name": "fromUserId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "fromUserName": {
+              "name": "fromUserName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "toUserId": {
+              "name": "toUserId",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
+            },
+            "toUserName": {
+              "name": "toUserName",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "rating": {
+              "name": "rating",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true,
+              "attributes": []
+            },
+            "comment": {
+              "name": "comment",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "reviewDate": {
+              "name": "reviewDate",
+              "isArray": false,
+              "type": "AWSDate",
+              "isRequired": true,
+              "attributes": []
+            },
+            "type": {
+              "name": "type",
+              "isArray": false,
+              "type": {
+                "enum": "ReviewType"
+              },
+              "isRequired": true,
+              "attributes": []
+            }
+          }
+        }
+      },
+      "mutations": {
+        "submitBookingReview": {
+          "name": "submitBookingReview",
+          "isArray": false,
+          "type": {
+            "nonModel": "ReviewSubmissionResult"
+          },
+          "isRequired": false,
+          "arguments": {
+            "bookingId": {
+              "name": "bookingId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true
+            },
+            "rating": {
+              "name": "rating",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": true
+            },
+            "comment": {
+              "name": "comment",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false
+            }
+          }
+        }
+      }
     }
   },
   "storage": {

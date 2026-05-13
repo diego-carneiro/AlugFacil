@@ -33,17 +33,17 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/consultorios" className="hover:text-white transition-colors">
+                <Link to="/clinics" className="hover:text-white transition-colors">
                   Consultórios
                 </Link>
               </li>
               <li>
-                <Link to="/cadastro" className="hover:text-white transition-colors">
+                <Link to="/register" className="hover:text-white transition-colors">
                   Criar conta de proprietário
                 </Link>
               </li>
               <li>
-                <Link to="/contato" className="hover:text-white transition-colors">
+                <Link to="/contact" className="hover:text-white transition-colors">
                   Contato
                 </Link>
               </li>
@@ -56,22 +56,22 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/entrar" className="hover:text-white transition-colors">
+                <Link to="/login" className="hover:text-white transition-colors">
                   Entrar
                 </Link>
               </li>
               <li>
-                <Link to="/cadastro" className="hover:text-white transition-colors">
+                <Link to="/register" className="hover:text-white transition-colors">
                   Criar conta
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard/locatario" className="hover:text-white transition-colors">
+                <Link to="/dashboard/tenant" className="hover:text-white transition-colors">
                   Painel do Dentista
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard/proprietario" className="hover:text-white transition-colors">
+                <Link to="/dashboard/owner" className="hover:text-white transition-colors">
                   Painel do Proprietário
                 </Link>
               </li>

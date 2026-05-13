@@ -20,10 +20,10 @@ import { resolveStorageUrl } from "../lib/storage/media";
 import type { UserRole } from "../types/user";
 
 const navItems = [
-  { label: "Visão geral", path: "/dashboard/locatario", icon: <CalendarDays size={18} /> },
+  { label: "Visão geral", path: "/dashboard/tenant", icon: <CalendarDays size={18} /> },
   {
     label: "Buscar consultórios",
-    path: "/dashboard/locatario/buscar-consultorios",
+    path: "/dashboard/tenant/search",
     icon: <Search size={18} />,
   },
   {
@@ -78,11 +78,11 @@ export default function Profile() {
 
   useEffect(() => {
     if (isAuthReady && !currentUser) {
-      navigate("/entrar", { replace: true });
+      navigate("/login", { replace: true });
       return;
     }
     if (isAuthReady && currentUser?.role === "owner") {
-      navigate("/dashboard/proprietario/perfil", { replace: true });
+      navigate("/dashboard/owner/profile", { replace: true });
     }
   }, [isAuthReady, currentUser, navigate]);
 

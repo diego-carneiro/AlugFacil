@@ -74,7 +74,7 @@ export async function createRoom(input: CreateRoomInput): Promise<Room> {
 
 export async function updateRoom(
   id: string,
-  fields: Partial<Omit<CreateRoomInput, "consultoryId" | "ownerId">>
+  fields: Partial<Omit<CreateRoomInput, "consultoryId" | "ownerId">> & { available?: boolean }
 ): Promise<void> {
   const api = getClient();
 

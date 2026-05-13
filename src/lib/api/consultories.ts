@@ -1,6 +1,12 @@
 import { client, hasAmplifyBackend } from "./client";
 import type { Consultory } from "../../types/consultory";
-import { deleteStorageFile, resolveStorageUrl, resolveStorageUrls, uploadConsultoryLogo } from "../storage/media";
+import {
+  deleteStorageFile,
+  MAX_CONSULTORY_IMAGES,
+  resolveStorageUrl,
+  resolveStorageUrls,
+  uploadConsultoryLogo,
+} from "../storage/media";
 import {
   createPublicSlug,
   matchesNameSlug,
@@ -459,6 +465,13 @@ export interface CreateConsultoryInput {
 export async function createConsultory(input: CreateConsultoryInput): Promise<Consultory> {
   const api = getClient();
   const publicSlug = input.publicSlug ?? (await buildConsultoryPublicSlug(input.name));
+  const imageKeys = Array.isArray(input.imageKeys)
+    ? input.imageKeys.filter((value): value is string => typeof value === "string")
+    : [];
+
+  if (imageKeys.length > MAX_CONSULTORY_IMAGES) {
+    throw new Error(`Você pode cadastrar no máximo ${MAX_CONSULTORY_IMAGES} fotos do consultório.`);
+  }
 
   const created = await api.models.Consultory.create({
     name: input.name,
@@ -476,7 +489,7 @@ export async function createConsultory(input: CreateConsultoryInput): Promise<Co
     periodMorning: input.periodMorning,
     periodAfternoon: input.periodAfternoon,
     periodEvening: input.periodEvening,
-    imageKeys: input.imageKeys,
+    imageKeys: imageKeys.length > 0 ? imageKeys : undefined,
   });
 
   if (!created.data) {

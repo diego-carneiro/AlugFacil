@@ -39,7 +39,7 @@ export default function ConfirmRegistration() {
   useEffect(() => {
     const pending = getPendingConfirmation();
     if (!pending?.email) {
-      navigate("/entrar", { replace: true });
+      navigate("/login", { replace: true });
       return;
     }
 
@@ -98,7 +98,7 @@ export default function ConfirmRegistration() {
   useEffect(() => {
     if (!isConfirmed) return;
     const timer = window.setTimeout(() => {
-      navigate("/entrar", { replace: true });
+      navigate("/login", { replace: true });
     }, 2000);
     return () => window.clearTimeout(timer);
   }, [isConfirmed, navigate]);
@@ -313,7 +313,7 @@ export default function ConfirmRegistration() {
               : (isResending ? "Reenviando..." : "Reenviar código")}
           </button>
 
-          <Link to="/cadastro" className="text-sm text-neutral-500 hover:text-neutral-700">
+          <Link to="/register" className="text-sm text-neutral-500 hover:text-neutral-700">
             Alterar cadastro
           </Link>
         </div>

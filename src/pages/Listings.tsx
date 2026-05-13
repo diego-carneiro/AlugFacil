@@ -222,7 +222,7 @@ export default function Listings() {
         >
           {filtered.map((consultory) => (
             <motion.div key={consultory.id} variants={fadeInUp}>
-              <Link to={`/consultorios/${consultory.id}`}>
+              <Link to={`/clinics/${consultory.id}`}>
                 <Card>
                   <div className="aspect-4/3 overflow-hidden relative">
                     <img

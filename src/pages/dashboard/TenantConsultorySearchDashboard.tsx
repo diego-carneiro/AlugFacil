@@ -19,8 +19,8 @@ import type { Consultory } from "../../types/consultory";
 import { listConsultories, searchConsultories, type SearchConsultoriesInput } from "../../lib/api/consultories";
 
 const navItems = [
-  { label: "Visão geral", path: "/dashboard/locatario", icon: <CalendarDays size={18} /> },
-  { label: "Buscar consultórios", path: "/dashboard/locatario/buscar-consultorios", icon: <Search size={18} /> },
+  { label: "Visão geral", path: "/dashboard/tenant", icon: <CalendarDays size={18} /> },
+  { label: "Buscar consultórios", path: "/dashboard/tenant/search", icon: <Search size={18} /> },
 ];
 
 const priceRanges = [

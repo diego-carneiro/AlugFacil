@@ -17,6 +17,7 @@ import Badge from "../../components/ui/Badge";
 import ReviewModal from "../../components/modals/ReviewModal";
 import InspectionModal from "../../components/modals/InspectionModal";
 import {
+  ACTIVE_BOOKING_STATUSES,
   periodLabels,
   statusColors,
   statusLabels,
@@ -26,10 +27,14 @@ import { useAuth } from "../../context/AuthContext";
 import { listBookingsByTenant } from "../../lib/api/bookings";
 
 const navItems = [
-  { label: "Visão geral", path: "/dashboard/locatario", icon: <CalendarDays size={18} /> },
+  {
+    label: "Visão geral",
+    path: "/dashboard/tenant",
+    icon: <CalendarDays size={18} />,
+  },
   {
     label: "Buscar consultórios",
-    path: "/dashboard/locatario/buscar-consultorios",
+    path: "/dashboard/tenant/search",
     icon: <Search size={18} />,
   },
 ];
@@ -40,8 +45,12 @@ export default function TenantDashboard() {
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState<TabId>("active");
   const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
-  const [inspectionBooking, setInspectionBooking] = useState<Booking | null>(null);
-  const [inspectionType, setInspectionType] = useState<"check-in" | "check-out">("check-in");
+  const [inspectionBooking, setInspectionBooking] = useState<Booking | null>(
+    null,
+  );
+  const [inspectionType, setInspectionType] = useState<
+    "check-in" | "check-out"
+  >("check-in");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [refreshTick, setRefreshTick] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +77,9 @@ export default function TenantDashboard() {
       } catch (loadError) {
         if (!cancelled) {
           const message =
-            loadError instanceof Error ? loadError.message : "Não foi possível carregar as reservas.";
+            loadError instanceof Error
+              ? loadError.message
+              : "Não foi possível carregar as reservas.";
           setError(message);
           setBookings([]);
         }
@@ -87,18 +98,25 @@ export default function TenantDashboard() {
   }, [currentUser?.id, refreshTick]);
 
   const activeBookings = useMemo(
-    () => bookings.filter((b) => b.status === "confirmed" || b.status === "pending"),
-    [bookings]
+    () =>
+      bookings
+        .filter((b) => ACTIVE_BOOKING_STATUSES.includes(b.status))
+        .sort((a, b) => a.date.localeCompare(b.date)),
+    [bookings],
   );
 
   const historyBookings = useMemo(
-    () => bookings.filter((b) => b.status === "completed" || b.status === "cancelled"),
-    [bookings]
+    () =>
+      bookings.filter(
+        (b) => b.status === "completed" || b.status === "cancelled",
+      ),
+    [bookings],
   );
 
   const pendingReview = useMemo(
-    () => bookings.filter((b) => b.status === "completed" && !b.reviewedByTenant),
-    [bookings]
+    () =>
+      bookings.filter((b) => b.status === "completed" && !b.reviewedByTenant),
+    [bookings],
   );
 
   const totalSpent = useMemo(
@@ -106,13 +124,17 @@ export default function TenantDashboard() {
       bookings
         .filter((b) => b.status === "completed")
         .reduce((sum, b) => sum + b.price, 0),
-    [bookings]
+    [bookings],
   );
 
   const tabs: { id: TabId; label: string; count?: number }[] = [
     { id: "active", label: "Reservas ativas", count: activeBookings.length },
     { id: "history", label: "Histórico" },
-    { id: "reviews", label: "Avaliações pendentes", count: pendingReview.length },
+    {
+      id: "reviews",
+      label: "Avaliações pendentes",
+      count: pendingReview.length,
+    },
   ];
 
   const openInspection = (booking: Booking, type: "check-in" | "check-out") => {
@@ -121,11 +143,15 @@ export default function TenantDashboard() {
   };
 
   return (
-    <DashboardLayout navItems={navItems} title="Meu Painel" titleClassName="font-normal">
+    <DashboardLayout
+      navItems={navItems}
+      title="Meu Painel"
+      titleClassName="font-normal"
+    >
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-display font-bold text-neutral-900">
-            Olá, {currentUser?.name?.split(" ")[0]} 👋
+            Olá, {currentUser?.name?.split(" ")[0]}
           </h2>
           <p className="text-neutral-500 mt-1">
             Aqui está um resumo das suas atividades.
@@ -142,8 +168,8 @@ export default function TenantDashboard() {
           <StatCard
             icon={<Clock size={20} />}
             label="Próxima reserva"
-            value={activeBookings[0]?.date ?? "—"}
-            sub={activeBookings[0] ? periodLabels[activeBookings[0].period] : undefined}
+            value={activeBookings[0]?.consultoryName ?? "—"}
+            sub={activeBookings[0]?.date}
             color="accent"
           />
           <StatCard
@@ -200,7 +226,7 @@ export default function TenantDashboard() {
                     <EmptyState
                       message="Nenhuma reserva ativa no momento."
                       cta="Buscar consultórios"
-                      href="/dashboard/locatario/buscar-consultorios"
+                      href="/dashboard/tenant/search"
                     />
                   ) : (
                     activeBookings.map((booking) => (
@@ -322,7 +348,9 @@ function BookingCard({
           >
             {booking.consultoryName}
           </Link>
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[booking.status]}`}>
+          <span
+            className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColors[booking.status]}`}
+          >
             {statusLabels[booking.status]}
           </span>
         </div>
@@ -367,15 +395,17 @@ function BookingCard({
                 )}
               </>
             )}
-            {booking.status === "completed" && !booking.reviewedByTenant && onReview && (
-              <button
-                onClick={onReview}
-                className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-1.5 hover:bg-accent-100 transition-colors"
-              >
-                <Star size={14} />
-                Avaliar
-              </button>
-            )}
+            {booking.status === "completed" &&
+              !booking.reviewedByTenant &&
+              onReview && (
+                <button
+                  onClick={onReview}
+                  className="flex items-center gap-1.5 text-xs bg-accent-50 text-accent-600 border border-accent-200 rounded-lg px-3 py-1.5 hover:bg-accent-100 transition-colors"
+                >
+                  <Star size={14} />
+                  Avaliar
+                </button>
+              )}
             {booking.status === "completed" && booking.reviewedByTenant && (
               <Badge variant="default">Avaliado</Badge>
             )}

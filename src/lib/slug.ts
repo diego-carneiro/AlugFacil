@@ -1,14 +1,14 @@
 const RESERVED_ROOT_SLUGS = new Set([
   "",
+  "about",
   "admin",
-  "cadastro",
-  "confirmar-cadastro",
-  "consultorios",
-  "contato",
+  "clinics",
+  "confirm-registration",
+  "contact",
   "dashboard",
-  "entrar",
+  "login",
   "profile",
-  "sobre",
+  "register",
 ]);
 
 function normalizeBaseSlug(value: string, fallback: string): string {

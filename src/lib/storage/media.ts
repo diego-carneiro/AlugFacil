@@ -3,6 +3,7 @@ import { hasAmplifyBackend } from "../api/client";
 import type { UserRole } from "../../types/user";
 
 const ONE_HOUR_IN_SECONDS = 60 * 60;
+export const MAX_CONSULTORY_IMAGES = 6;
 
 function sanitizeFileName(fileName: string): string {
   return fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
@@ -23,6 +24,9 @@ export async function uploadConsultoryImages(
   files: File[]
 ): Promise<string[]> {
   ensureBackend();
+  if (files.length > MAX_CONSULTORY_IMAGES) {
+    throw new Error(`Você pode enviar no máximo ${MAX_CONSULTORY_IMAGES} fotos do consultório.`);
+  }
 
   const uploads = files.map(async (file) => {
     const key = `public/consultories/${ownerId}/${timestampedName(file.name)}`;

@@ -167,6 +167,13 @@
         "Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthautoconfirmuserlambda45FAD957Ref"
        ]
       },
+      "\",\"",
+      {
+       "Fn::GetAtt": [
+        "function1351588B",
+        "Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Ref"
+       ]
+      },
       "\"]"
      ]
     ]
@@ -349,6 +356,12 @@
        "auth179371D7",
        "Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
       ]
+     },
+     "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dfunctionNestedStackfunctionNestedStackResourceCEE29662Outputsamplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn": {
+      "Fn::GetAtt": [
+       "function1351588B",
+       "Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn"
+      ]
      }
     },
     "Tags": [
@@ -377,7 +390,7 @@
        {
         "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
        },
-       "/cfdee1ca56eb3b282440dc0296f56860f031689906533a82c968f28973d6fedb.json"
+       "/3c879ac13b3f47dcabbe495de9fe04f8c310881945feb5b337257eefb2a14b69.json"
       ]
      ]
     }
@@ -387,6 +400,48 @@
    "Metadata": {
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data.NestedStack/data.NestedStackResource",
     "aws:asset:path": "amplifyalugfacildiegowslsandbox96b5e8de9ddata39014A1F.nested.template.json",
+    "aws:asset:property": "TemplateURL"
+   }
+  },
+  "function1351588B": {
+   "Type": "AWS::CloudFormation::Stack",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "amplify:deployment-type",
+      "Value": "sandbox"
+     },
+     {
+      "Key": "created-by",
+      "Value": "amplify"
+     }
+    ],
+    "TemplateURL": {
+     "Fn::Join": [
+      "",
+      [
+       "https://s3.",
+       {
+        "Ref": "AWS::Region"
+       },
+       ".",
+       {
+        "Ref": "AWS::URLSuffix"
+       },
+       "/",
+       {
+        "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}"
+       },
+       "/9b8f0ade6e033c8ff71e1eacde2b82cba2df08cdc03f50e180aa8a70893c6d99.json"
+      ]
+     ]
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function.NestedStack/function.NestedStackResource",
+    "aws:asset:path": "amplifyalugfacildiegowslsandbox96b5e8de9dfunction5E336947.nested.template.json",
     "aws:asset:property": "TemplateURL"
    }
   },

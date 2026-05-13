@@ -4,6 +4,8 @@ import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
 import Router from "./Router";
 import { AuthProvider } from "./context/AuthContext";
+import { LoadingProvider } from "./context/LoadingContext";
+import GlobalLoadingBar from "./components/ui/GlobalLoadingBar";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -13,7 +15,7 @@ function ScrollToTop() {
   return null;
 }
 
-const FULLSCREEN_ROUTES = ["/entrar", "/cadastro", "/dashboard"];
+const FULLSCREEN_ROUTES = ["/login", "/register", "/dashboard"];
 
 function AppShell() {
   const { pathname } = useLocation();
@@ -39,10 +41,13 @@ function AppShell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <ScrollToTop />
-        <AppShell />
-      </AuthProvider>
+      <LoadingProvider>
+        <GlobalLoadingBar />
+        <AuthProvider>
+          <ScrollToTop />
+          <AppShell />
+        </AuthProvider>
+      </LoadingProvider>
     </BrowserRouter>
   );
 }

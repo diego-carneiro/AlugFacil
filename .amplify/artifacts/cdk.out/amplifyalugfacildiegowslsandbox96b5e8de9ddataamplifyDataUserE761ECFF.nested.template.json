@@ -1095,7 +1095,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "MutationcreateUserauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/7e219874d5c888300919d94fbf2c7b8628201f180f05b3c00985855c9d4eb90b.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a01c9ecb2d1e9586fc14c42587018d06dd7b085f1d6551fe1a8a6232e173d42a.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1343,7 +1343,7 @@
      "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/1f5fed297da9c32ae3af922bf3a38ccf23b956078887d16891ec06c20c64722c.vtl"
     },
     "ResponseMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/75f38854003d3fa41df39395498d977b83ae183d8549c7c62538f0cdcf9bf26c.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/cae51a45eb70aa56ce1f76effe48427c9f73691ff6d7df3d270322a4504dc145.vtl"
     }
    },
    "DependsOn": [
@@ -2182,6 +2182,28 @@
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/User/subscriptionOnDeleteUserResolver"
    }
   },
+  "Userownerfinish0FunctionUserownerfinish0FunctionAppSyncFunctionE1C6D2EB": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "Userownerfinish0Function",
+    "RequestMappingTemplate": "$util.toJson({})",
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/064303962e481067b44300212516363b99aaee539b6bafaf756fdd83ff0b60f0.vtl"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/User/Userownerfinish0Function/Userownerfinish0Function.AppSyncFunction"
+   }
+  },
   "UserOwnerDataResolverFnUserOwnerDataResolverFnAppSyncFunction78EE3B72": {
    "Type": "AWS::AppSync::FunctionConfiguration",
    "Properties": {
@@ -2194,10 +2216,10 @@
     "FunctionVersion": "2018-05-29",
     "Name": "UserOwnerDataResolverFn",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/041534e5fd916595f752318f161512d7c7f83b9f2cf32d0f0be381c12253ff68.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/0823afadab248da207238f002db909d7e34ca328e19175d019f5e9fc5034635b.vtl"
     },
     "ResponseMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/064303962e481067b44300212516363b99aaee539b6bafaf756fdd83ff0b60f0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/f4e49b655b278e80172c8ada54f98e2c97d88a5411bad3c0df39f26d5455eb76.vtl"
     }
    },
    "UpdateReplacePolicy": "Delete",
@@ -2219,6 +2241,12 @@
       {
        "Fn::GetAtt": [
         "UserOwnerDataResolverFnUserOwnerDataResolverFnAppSyncFunction78EE3B72",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "Userownerfinish0FunctionUserownerfinish0FunctionAppSyncFunctionE1C6D2EB",
         "FunctionId"
        ]
       }

@@ -111,7 +111,7 @@ export default function UserProfile() {
             </div>
 
             <Link
-              to="/consultorios"
+              to="/clinics"
               className="inline-flex items-center gap-2 bg-primary-500 text-white px-5 py-2.5 rounded-xl text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
             >
               Ver consultórios disponíveis

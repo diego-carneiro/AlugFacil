@@ -1,5 +1,5 @@
 import { client, hasAmplifyBackend } from "./client";
-import type { Review, ReviewType } from "../../types/review";
+import type { Review } from "../../types/review";
 
 function getClient() {
   if (!hasAmplifyBackend || !client) {
@@ -20,7 +20,7 @@ function mapBackendReview(item: Record<string, unknown>): Review {
     rating: Number(item.rating ?? 0),
     comment: String(item.comment ?? ""),
     reviewDate: String(item.reviewDate ?? ""),
-    type: String(item.type ?? "tenant_to_consultory") as ReviewType,
+    type: String(item.type ?? "tenant_to_consultory") as "tenant_to_consultory" | "owner_to_tenant",
   };
 }
 
@@ -29,9 +29,18 @@ export async function listReviewsByConsultory(consultoryId: string): Promise<Rev
 
   const response = await api.models.Review.list({
     filter: {
-      consultoryId: {
-        eq: consultoryId,
-      },
+      and: [
+        {
+          consultoryId: {
+            eq: consultoryId,
+          },
+        },
+        {
+          type: {
+            eq: "tenant_to_consultory",
+          },
+        },
+      ],
     },
     authMode: "apiKey",
     limit: 1000,
@@ -44,31 +53,17 @@ export async function listReviewsByConsultory(consultoryId: string): Promise<Rev
 
 export interface CreateReviewInput {
   bookingId: string;
-  consultoryId: string;
-  fromUserId: string;
-  fromUserName: string;
-  toUserId: string;
-  toUserName?: string;
   rating: number;
   comment?: string;
-  type: ReviewType;
-  reviewDate: string;
 }
 
 export async function createReview(input: CreateReviewInput): Promise<Review> {
   const api = getClient();
 
-  const created = await api.models.Review.create({
+  const created = await api.mutations.submitBookingReview({
     bookingId: input.bookingId,
-    consultoryId: input.consultoryId,
-    fromUserId: input.fromUserId,
-    fromUserName: input.fromUserName,
-    toUserId: input.toUserId,
-    toUserName: input.toUserName,
     rating: input.rating,
     comment: input.comment,
-    type: input.type,
-    reviewDate: input.reviewDate,
   });
 
   if (!created.data) {

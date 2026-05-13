@@ -121,7 +121,7 @@ export default function FeaturedListings({ className = "" }: FeaturedListingsPro
         </motion.div>
 
         <div className="text-center mt-12">
-          <Button href="/consultorios" variant="accent" size="lg">
+          <Button href="/clinics" variant="accent" size="lg">
             Ver todos os consultórios
             <ArrowRight size={18} />
           </Button>

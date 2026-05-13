@@ -350,6 +350,12 @@
       "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dfunctionNestedStackfunctionNestedStackResourceCEE29662Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dfunctionNestedStackfunctionNestedStackResourceCEE29662Outputsamplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId": [
     {
       "type": "aws:cdk:logicalId",
@@ -378,6 +384,24 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "data7552DF31"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function/amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function/amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function.NestedStack/function.NestedStackResource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "function1351588B"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/storage/Custom::S3AutoDeleteObjectsCustomResourceProvider": [
@@ -531,6 +555,24 @@
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/CDKMetadata/Condition": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadataAvailable"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function/submit-booking-review-lambda/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "submitbookingreviewlambdaD9676513"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function/CDKMetadata/Condition": [
     {
       "type": "aws:cdk:logicalId",
       "data": "CDKMetadataAvailable"
@@ -1774,6 +1816,224 @@
       "data": "amplifyDataInspectionNestedStackInspectionNestedStackResourceFEF5F7F7"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/DynamoDBModelTableReadIOPS": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynamoDBModelTableReadIOPS"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/DynamoDBModelTableWriteIOPS": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynamoDBModelTableWriteIOPS"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/DynamoDBBillingMode": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynamoDBBillingMode"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/DynamoDBEnablePointInTimeRecovery": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynamoDBEnablePointInTimeRecovery"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/DynamoDBEnableServerSideEncryption": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DynamoDBEnableServerSideEncryption"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/HasEnvironmentParameter": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "HasEnvironmentParameter"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/ShouldUsePayPerRequestBilling": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ShouldUsePayPerRequestBilling"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/ShouldUsePointInTimeRecovery": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ShouldUsePointInTimeRecovery"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/RoomTable": [
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Room"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/CustomTableRoomTable": [
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Room"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/GetAttRoomTableStreamArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GetAttRoomTableStreamArn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/GetAttRoomTableName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GetAttRoomTableName"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/RoomIAMRole": [
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "RoomIAMRole"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/RoomDataSource": [
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "RoomTable"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/queryGetRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "GetRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Query.getRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/queryListRoomsResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ListRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Query.listRooms"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/mutationCreateRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CreateRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Mutation.createRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/mutationUpdateRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "UpdateRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Mutation.updateRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/mutationDeleteRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DeleteRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Mutation.deleteRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/subscriptionOnCreateRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononCreateRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Subscription.onCreateRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/subscriptionOnUpdateRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononUpdateRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Subscription.onUpdateRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/subscriptionOnDeleteRoomResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononDeleteRoomResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Subscription.onDeleteRoom"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataAmplifyTableManagerNestedStackAmplifyTableManagerNestedStackResource716E4D53Outputs.amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataAmplifyTableManagerTableManagerCustomProviderframeworkonEvent9F494808Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataAmplifyTableManagerNestedStackAmplifyTableManagerNestedStackResource716E4D53Outputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataAmplifyTableManagerTableManagerCus6AA51B47"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthunauthenticatedUserRoleA824F638Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthunauthenticatedUserRoleA824F638Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomDataSource778B31CBName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomDataSource778B31CBName"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomTable9501781DTableArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomTable9501781DTableArn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room.NestedStack/Room.NestedStackResource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyDataRoomNestedStackRoomNestedStackResource04977FC3"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Review/DynamoDBModelTableReadIOPS": [
     {
       "type": "aws:cdk:logicalId",
@@ -1992,6 +2252,70 @@
       "data": "amplifyDataReviewNestedStackReviewNestedStackResource3212A798"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/HasEnvironmentParameter": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "HasEnvironmentParameter"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/FnSubmitBookingReviewLambdaDataSource": [
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "FnSubmitBookingReviewLambdaDataSource"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/mutationSubmitBookingReviewResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationsubmitBookingReviewResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Mutation.submitBookingReview"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dfunctionNestedStackfunctionNestedStackResourceCEE29662Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dfunctionNestedStackfunctionNestedStackResourceCEE29662Outputsamplifyalugfacildiegowslsandbox96b5e8de9dfunctionsubmitbookingreviewlambdaCAB89BE8Arn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthunauthenticatedUserRoleA824F638Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthunauthenticatedUserRoleA824F638Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputs.amplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack.NestedStack/FunctionDirectiveStack.NestedStackResource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "amplifyDataFunctionDirectiveStackNestedStackFunctionDirectiveStackNestedStackResource1246A302"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/userOwnedConsultoriesResolver": [
     {
       "type": "aws:cdk:logicalId",
@@ -2040,6 +2364,16 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "Consultory.reviews"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/consultoryRoomsResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConsultoryroomsResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Consultory.rooms"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/bookingInspectionsResolver": [
@@ -2110,6 +2444,16 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "Inspection.consultory"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/roomConsultoryResolver": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RoomconsultoryResolver"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Room.consultory"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/reviewBookingResolver": [
@@ -2222,6 +2566,18 @@
       "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataReviewNestedStackReviewNestedStackResourceF469AC51Outputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataReviewReviewTable5B11A134TableArn"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputs.amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomDataSource778B31CBName": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomDataSource778B31CBName"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputs.amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomTable9501781DTableArn": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomTable9501781DTableArn"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/reference-to-amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataUserNestedStackUserNestedStackResource54D6914EOutputs.amplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataUserUserDataSourceD07EB6C3Name": [
     {
       "type": "aws:cdk:logicalId",
@@ -2274,6 +2630,12 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "modelIntrospectionSchemaBucketDeploymentCustomResource1536MiB104B97EC"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/function/submit-booking-review-lambda/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "submitbookingreviewlambdaServiceRole005312E0"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/storage/alugfacilStorage/Bucket/Resource": [
@@ -2666,6 +3028,16 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "SubscriptionOnDeleteUserDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/User/Userownerfinish0Function/Userownerfinish0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Userownerfinish0FunctionUserownerfinish0FunctionAppSyncFunctionE1C6D2EB"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Userownerfinish0Function"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/User/UserOwnerDataResolverFn/UserOwnerDataResolverFn.AppSyncFunction": [
@@ -3888,6 +4260,308 @@
       "data": "CDKMetadataAvailable"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/RoomIAMRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RoomIAMRole2401AA67"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "RoomIAMRole"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/RoomDataSource/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RoomDataSource"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "RoomTable"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/QuerygetRoomauth0Function/QuerygetRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QuerygetRoomauth0FunctionQuerygetRoomauth0FunctionAppSyncFunctionD5AED3A9"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "QuerygetRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/QuerygetRoompostAuth0Function/QuerygetRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QuerygetRoompostAuth0FunctionQuerygetRoompostAuth0FunctionAppSyncFunctionBC9F877F"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "QuerygetRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/QueryGetRoomDataResolverFn/QueryGetRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueryGetRoomDataResolverFnQueryGetRoomDataResolverFnAppSyncFunction385560A5"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "QueryGetRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/QuerylistRoomsauth0Function/QuerylistRoomsauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QuerylistRoomsauth0FunctionQuerylistRoomsauth0FunctionAppSyncFunction4C2A4571"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "QuerylistRoomsauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/QuerylistRoomspostAuth0Function/QuerylistRoomspostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QuerylistRoomspostAuth0FunctionQuerylistRoomspostAuth0FunctionAppSyncFunction6AC1C223"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "QuerylistRoomspostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/QueryListRoomsDataResolverFn/QueryListRoomsDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "QueryListRoomsDataResolverFnQueryListRoomsDataResolverFnAppSyncFunction33EC0CE0"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "QueryListRoomsDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationcreateRoominit0Function/MutationcreateRoominit0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationcreateRoominit0FunctionMutationcreateRoominit0FunctionAppSyncFunctionEEB35859"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationcreateRoominit0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationcreateRoominit1Function/MutationcreateRoominit1Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationcreateRoominit1FunctionMutationcreateRoominit1FunctionAppSyncFunction797A85BC"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationcreateRoominit1Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationcreateRoomauth0Function/MutationcreateRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationcreateRoomauth0FunctionMutationcreateRoomauth0FunctionAppSyncFunction25F378E5"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationcreateRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationcreateRoompostAuth0Function/MutationcreateRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationcreateRoompostAuth0FunctionMutationcreateRoompostAuth0FunctionAppSyncFunction21815C01"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationcreateRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationCreateRoomDataResolverFn/MutationCreateRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationCreateRoomDataResolverFnMutationCreateRoomDataResolverFnAppSyncFunction40C79233"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationCreateRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationupdateRoominit0Function/MutationupdateRoominit0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationupdateRoominit0FunctionMutationupdateRoominit0FunctionAppSyncFunction2245CE13"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationupdateRoominit0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationupdateRoomauth0Function/MutationupdateRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationupdateRoomauth0FunctionMutationupdateRoomauth0FunctionAppSyncFunctionB2DFE746"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationupdateRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationupdateRoompostAuth0Function/MutationupdateRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationupdateRoompostAuth0FunctionMutationupdateRoompostAuth0FunctionAppSyncFunctionD8E8EB5F"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationupdateRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationUpdateRoomDataResolverFn/MutationUpdateRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationUpdateRoomDataResolverFnMutationUpdateRoomDataResolverFnAppSyncFunction014F39C2"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationUpdateRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationdeleteRoomauth0Function/MutationdeleteRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationdeleteRoomauth0FunctionMutationdeleteRoomauth0FunctionAppSyncFunction585DF4A1"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationdeleteRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationdeleteRoompostAuth0Function/MutationdeleteRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationdeleteRoompostAuth0FunctionMutationdeleteRoompostAuth0FunctionAppSyncFunction4F6EAC1E"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationdeleteRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/MutationDeleteRoomDataResolverFn/MutationDeleteRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationDeleteRoomDataResolverFnMutationDeleteRoomDataResolverFnAppSyncFunction2C38134B"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationDeleteRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptiononCreateRoomauth0Function/SubscriptiononCreateRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononCreateRoomauth0FunctionSubscriptiononCreateRoomauth0FunctionAppSyncFunction0FD49593"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptiononCreateRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptiononCreateRoompostAuth0Function/SubscriptiononCreateRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononCreateRoompostAuth0FunctionSubscriptiononCreateRoompostAuth0FunctionAppSyncFunctionC3647263"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptiononCreateRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptionOnCreateRoomDataResolverFn/SubscriptionOnCreateRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptionOnCreateRoomDataResolverFnSubscriptionOnCreateRoomDataResolverFnAppSyncFunction2251C501"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptionOnCreateRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptiononUpdateRoomauth0Function/SubscriptiononUpdateRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononUpdateRoomauth0FunctionSubscriptiononUpdateRoomauth0FunctionAppSyncFunction08D13034"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptiononUpdateRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptiononUpdateRoompostAuth0Function/SubscriptiononUpdateRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononUpdateRoompostAuth0FunctionSubscriptiononUpdateRoompostAuth0FunctionAppSyncFunction355FB2EC"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptiononUpdateRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptionOnUpdateRoomDataResolverFn/SubscriptionOnUpdateRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptionOnUpdateRoomDataResolverFnSubscriptionOnUpdateRoomDataResolverFnAppSyncFunction61007ED1"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptionOnUpdateRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptiononDeleteRoomauth0Function/SubscriptiononDeleteRoomauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononDeleteRoomauth0FunctionSubscriptiononDeleteRoomauth0FunctionAppSyncFunctionF41F050D"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptiononDeleteRoomauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptiononDeleteRoompostAuth0Function/SubscriptiononDeleteRoompostAuth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptiononDeleteRoompostAuth0FunctionSubscriptiononDeleteRoompostAuth0FunctionAppSyncFunction763971AE"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptiononDeleteRoompostAuth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/SubscriptionOnDeleteRoomDataResolverFn/SubscriptionOnDeleteRoomDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "SubscriptionOnDeleteRoomDataResolverFnSubscriptionOnDeleteRoomDataResolverFnAppSyncFunctionD8458EA9"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "SubscriptionOnDeleteRoomDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/CDKMetadata/Condition": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadataAvailable"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Review/ReviewIAMRole/Resource": [
     {
       "type": "aws:cdk:logicalId",
@@ -4180,6 +4854,48 @@
       "data": "CDKMetadataAvailable"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/FnSubmitBookingReviewLambdaDataSource/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FnSubmitBookingReviewLambdaDataSource"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "FnSubmitBookingReviewLambdaDataSource"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/InvokeFnSubmitBookingReviewLambdaDataSource/InvokeFnSubmitBookingReviewLambdaDataSource.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "InvokeFnSubmitBookingReviewLambdaDataSourceInvokeFnSubmitBookingReviewLambdaDataSourceAppSyncFunctionDFEDDA34"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "InvokeFnSubmitBookingReviewLambdaDataSource"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/MutationSubmitBookingReviewAuthFN/MutationSubmitBookingReviewAuthFN.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "MutationSubmitBookingReviewAuthFNMutationSubmitBookingReviewAuthFNAppSyncFunction03D5EA1C"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "MutationSubmitBookingReviewAuthFN"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/CDKMetadata/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadata"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/CDKMetadata/Condition": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "CDKMetadataAvailable"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/UserownedConsultoriesauth0Function/UserownedConsultoriesauth0Function.AppSyncFunction": [
     {
       "type": "aws:cdk:logicalId",
@@ -4278,6 +4994,26 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "ConsultoryReviewsDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/Consultoryroomsauth0Function/Consultoryroomsauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Consultoryroomsauth0FunctionConsultoryroomsauth0FunctionAppSyncFunction4D98D95C"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Consultoryroomsauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/ConsultoryRoomsDataResolverFn/ConsultoryRoomsDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "ConsultoryRoomsDataResolverFnConsultoryRoomsDataResolverFnAppSyncFunction7A24480F"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "ConsultoryRoomsDataResolverFn"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/Bookinginspectionsauth0Function/Bookinginspectionsauth0Function.AppSyncFunction": [
@@ -4418,6 +5154,26 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "InspectionConsultoryDataResolverFn"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/Roomconsultoryauth0Function/Roomconsultoryauth0Function.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "Roomconsultoryauth0FunctionRoomconsultoryauth0FunctionAppSyncFunction354D11F0"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Roomconsultoryauth0Function"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/RoomConsultoryDataResolverFn/RoomConsultoryDataResolverFn.AppSyncFunction": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RoomConsultoryDataResolverFnRoomConsultoryDataResolverFnAppSyncFunction2E459115"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "RoomConsultoryDataResolverFn"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/Reviewbookingauth0Function/Reviewbookingauth0Function.AppSyncFunction": [
@@ -4582,6 +5338,16 @@
       "data": "Inspection"
     }
   ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Room/RoomTable/Default/Default": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "RoomTable"
+    },
+    {
+      "type": "graphqltransformer:resourceName",
+      "data": "Room"
+    }
+  ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/Review/ReviewTable/Default/Default": [
     {
       "type": "aws:cdk:logicalId",
@@ -4590,6 +5356,12 @@
     {
       "type": "graphqltransformer:resourceName",
       "data": "Review"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/FnSubmitBookingReviewLambdaDataSource/ServiceRole/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FnSubmitBookingReviewLambdaDataSourceServiceRole6817F165"
     }
   ],
   "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/AmplifyCodegenAssets/AmplifyCodegenAssetsBucket/Policy/Resource": [
@@ -4626,6 +5398,12 @@
     {
       "type": "aws:cdk:logicalId",
       "data": "AmplifyTableWaiterStateMachineRoleDefaultPolicy89F3836A"
+    }
+  ],
+  "/amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/FunctionDirectiveStack/FnSubmitBookingReviewLambdaDataSource/ServiceRole/DefaultPolicy/Resource": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "FnSubmitBookingReviewLambdaDataSourceServiceRoleDefaultPolicy4281DC39"
     }
   ]
 }

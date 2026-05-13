@@ -8,26 +8,26 @@ import {
   Star,
   Clock,
   Camera,
-  LayoutDashboard,
   Sun,
   Sunset,
   Moon,
   ChevronRight,
   Loader2,
   Zap,
+  Wrench,
 } from "lucide-react";
 import DashboardLayout from "../components/dashboard/DashboardLayout";
 import { useAuth } from "../context/AuthContext";
-import { listConsultoriesByOwner, uploadAndSaveConsultoryLogo } from "../lib/api/consultories";
+import { uploadAndSaveConsultoryLogo } from "../lib/api/consultories";
 import { resolveStorageUrl } from "../lib/storage/media";
-import type { Consultory } from "../types/consultory";
+import { useOwnerConsultories, useInvalidateOwnerData } from "../lib/queries/ownerQueries";
 
 const navItems = [
-  { label: "Visão geral", path: "/dashboard/proprietario", icon: <Building2 size={18} /> },
-  { label: "Minhas salas", path: "/consultorios", icon: <Building2 size={18} /> },
+  { label: "Visão geral", path: "/dashboard/owner", icon: <Building2 size={18} /> },
+  { label: "Minhas salas", path: "/dashboard/owner/rooms", icon: <Building2 size={18} /> },
   {
     label: "Perfil do Consultório",
-    path: "/dashboard/proprietario/perfil",
+    path: "/dashboard/owner/profile",
     icon: (
       <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
         <circle cx="12" cy="8" r="4" />
@@ -52,11 +52,16 @@ const PERIOD_LABELS = {
 export default function ConsultoryProfile() {
   const { currentUser, isAuthReady } = useAuth();
   const navigate = useNavigate();
+  const { updateConsultoryLogo } = useInvalidateOwnerData();
 
-  const [consultory, setConsultory] = useState<Consultory | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    data: consultories = [],
+    isLoading,
+    error: queryError,
+  } = useOwnerConsultories(currentUser?.id);
+
+  const consultory = consultories[0] ?? null;
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(consultory?.logoUrl);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadError, setUploadError] = useState("");
 
@@ -64,46 +69,21 @@ export default function ConsultoryProfile() {
 
   useEffect(() => {
     if (isAuthReady && (!currentUser || currentUser.role !== "owner")) {
-      navigate("/entrar", { replace: true });
+      navigate("/login", { replace: true });
     }
   }, [isAuthReady, currentUser, navigate]);
 
   useEffect(() => {
-    const ownerId = currentUser?.id;
-    if (!ownerId) return;
-
-    let cancelled = false;
-
-    async function load() {
-      try {
-        const items = await listConsultoriesByOwner(ownerId!);
-        if (cancelled) return;
-
-        const first = items[0] ?? null;
-        setConsultory(first);
-
-        if (first?.logoUrl) {
-          setLogoUrl(first.logoUrl);
-        } else if (first?.logoKey) {
-          try {
-            const url = await resolveStorageUrl(first.logoKey);
-            if (!cancelled) setLogoUrl(url);
-          } catch {
-            // noop
-          }
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Não foi possível carregar o consultório.");
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
-      }
+    if (consultory?.logoUrl) {
+      setLogoUrl(consultory.logoUrl);
+    } else if (consultory?.logoKey) {
+      resolveStorageUrl(consultory.logoKey)
+        .then(setLogoUrl)
+        .catch(() => undefined);
     }
+  }, [consultory?.logoUrl, consultory?.logoKey]);
 
-    void load();
-    return () => { cancelled = true; };
-  }, [currentUser?.id]);
+  const error = queryError instanceof Error ? queryError.message : queryError ? "Não foi possível carregar o consultório." : "";
 
   const handleLogoClick = useCallback(() => {
     fileInputRef.current?.click();
@@ -128,19 +108,19 @@ export default function ConsultoryProfile() {
 
         const url = await resolveStorageUrl(newKey);
         setLogoUrl(url);
-        setConsultory((prev) => prev ? { ...prev, logoKey: newKey, logoUrl: url } : prev);
+        updateConsultoryLogo(currentUser.id, consultory.id, newKey, url);
       } catch (err) {
         setUploadError(err instanceof Error ? err.message : "Erro ao fazer upload da logo.");
       } finally {
         setUploadingLogo(false);
       }
     },
-    [consultory, currentUser]
+    [consultory, currentUser, updateConsultoryLogo]
   );
 
   if (!isAuthReady || isLoading) {
     return (
-      <DashboardLayout navItems={navItems} title="Perfil do Consultório" defaultSidebarOpen={false} fixedCenter>
+      <DashboardLayout navItems={navItems} title="Perfil do Consultório" defaultSidebarOpen={true} showTitle={false} fixedCenter>
         <div className="flex items-center justify-center h-48">
           <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
         </div>
@@ -150,14 +130,14 @@ export default function ConsultoryProfile() {
 
   if (error || !consultory) {
     return (
-      <DashboardLayout navItems={navItems} title="Perfil do Consultório" defaultSidebarOpen={false} fixedCenter>
+      <DashboardLayout navItems={navItems} title="Perfil do Consultório" defaultSidebarOpen={true} fixedCenter>
         <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,102,204,0.08)] p-10 text-center">
           <Building2 size={40} className="mx-auto mb-4 text-neutral-300" />
           <p className="text-neutral-500 mb-4">
             {error || "Nenhum consultório cadastrado ainda."}
           </p>
           <Link
-            to="/dashboard/proprietario"
+            to="/dashboard/owner"
             className="inline-flex items-center gap-2 bg-primary-500 text-white px-5 py-2.5 rounded-xl text-sm font-display font-semibold hover:bg-primary-600 transition-colors"
           >
             Ir para o painel
@@ -183,7 +163,7 @@ export default function ConsultoryProfile() {
     <DashboardLayout
       navItems={navItems}
       title="Perfil do Consultório"
-      defaultSidebarOpen={false}
+      defaultSidebarOpen={true}
       showTitle={false}
       fixedCenter
       profileOverride={{
@@ -206,15 +186,15 @@ export default function ConsultoryProfile() {
             <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/5 rounded-full" />
           </div>
 
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-7">
             {/* Avatar logo */}
-            <div className="-mt-12 mb-4 relative z-10">
-              <div className="relative w-24 h-24 group">
+            <div className="-mt-11 mb-8 relative z-10">
+              <div className="relative w-[6.5rem] h-[6.5rem] group">
                 <button
                   onClick={handleLogoClick}
                   disabled={uploadingLogo}
                   aria-label="Alterar logo do consultório"
-                  className="w-24 h-24 rounded-2xl border-4 border-white shadow-[0_8px_32px_rgba(0,102,204,0.18)] overflow-hidden bg-white flex items-center justify-center relative focus:outline-none"
+                  className="w-full h-full rounded-2xl border-4 border-white shadow-[0_8px_32px_rgba(0,102,204,0.18)] overflow-hidden bg-white flex items-center justify-center relative focus:outline-none"
                 >
                   {uploadingLogo ? (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-xl">
@@ -239,19 +219,19 @@ export default function ConsultoryProfile() {
                   className="hidden"
                   onChange={handleLogoFileChange}
                 />
+                <p className="pointer-events-none absolute top-full left-1/2 mt-2.5 -translate-x-1/2 whitespace-nowrap text-xs text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                  Clique na logo para alterar
+                </p>
               </div>
 
               {uploadError && (
                 <p className="mt-2 text-xs text-red-500">{uploadError}</p>
               )}
-              <p className="mt-1.5 text-xs text-neutral-400">
-                Clique na logo para alterar
-              </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
               <div>
-                <div className="flex items-center gap-2 flex-wrap mb-1">
+                <div className="flex items-center gap-2 flex-wrap mb-2">
                   <h1 className="text-2xl font-display font-bold text-neutral-800">
                     {consultory.name}
                   </h1>
@@ -269,13 +249,6 @@ export default function ConsultoryProfile() {
               </div>
 
               <div className="flex items-center gap-2 self-start flex-wrap">
-                <Link
-                  to="/dashboard/proprietario"
-                  className="inline-flex items-center gap-2 text-sm text-neutral-600 border border-neutral-200 px-3 py-2 rounded-xl hover:bg-neutral-50 transition-colors"
-                >
-                  <LayoutDashboard size={15} />
-                  <span className="hidden sm:inline">Painel</span>
-                </Link>
                 <Link
                   to={`/consultorios/${consultory.id}`}
                   className="inline-flex items-center gap-2 text-sm text-primary-600 border border-primary-200 bg-primary-50 px-3 py-2 rounded-xl hover:bg-primary-100 transition-colors"
@@ -374,7 +347,7 @@ export default function ConsultoryProfile() {
             <div className="bg-white rounded-2xl border border-neutral-100 shadow-[0_4px_24px_rgba(0,102,204,0.06)] p-6">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-8 h-8 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
-                  <span className="text-sm">🦷</span>
+                  <Wrench size={15} className="text-primary-500" />
                 </div>
                 <h2 className="font-display font-semibold text-neutral-700">Equipamentos</h2>
               </div>
@@ -382,7 +355,7 @@ export default function ConsultoryProfile() {
                 {consultory.equipment.map((eq) => (
                   <span
                     key={eq}
-                    className="text-xs bg-primary-50 text-primary-700 border border-primary-100 px-3 py-1.5 rounded-full font-medium"
+                    className="text-xs bg-primary-50 text-primary-700 border border-primary-100 px-3 py-1.5 rounded-full font-medium font-display"
                   >
                     {eq}
                   </span>
@@ -407,13 +380,13 @@ export default function ConsultoryProfile() {
             {consultory.images.length > 0 && consultory.images[0].startsWith("http") && (
               <div className="bg-white rounded-2xl border border-neutral-100 shadow-[0_4px_24px_rgba(0,102,204,0.06)] p-6">
                 <h2 className="font-display font-semibold text-neutral-700 mb-4">Fotos</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
                   {consultory.images.map((src, i) => (
                     <img
                       key={i}
                       src={src}
                       alt={`${consultory.name} — foto ${i + 1}`}
-                      className="w-full h-36 sm:h-44 object-cover rounded-xl"
+                      className="h-36 sm:h-44 w-56 sm:w-64 shrink-0 object-cover rounded-xl snap-start"
                       loading="lazy"
                     />
                   ))}

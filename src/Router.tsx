@@ -17,6 +17,7 @@ const TenantConsultorySearchDashboard = lazy(
   () => import("./pages/dashboard/TenantConsultorySearchDashboard"),
 );
 const OwnerDashboard = lazy(() => import("./pages/dashboard/OwnerDashboard"));
+const OwnerRooms = lazy(() => import("./pages/dashboard/OwnerRooms"));
 const AdminDashboard = lazy(() => import("./pages/dashboard/AdminDashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const ConsultoryProfile = lazy(() => import("./pages/ConsultoryProfile"));
@@ -38,7 +39,7 @@ function OwnerOnlyRoute({ children }: { children: ReactNode }) {
   }
 
   if (!currentUser) {
-    return <Navigate to="/entrar" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (currentUser.role !== "owner") {
@@ -46,7 +47,7 @@ function OwnerOnlyRoute({ children }: { children: ReactNode }) {
       return <Navigate to="/dashboard/admin" replace />;
     }
 
-    return <Navigate to="/dashboard/locatario" replace />;
+    return <Navigate to="/dashboard/tenant" replace />;
   }
 
   return <>{children}</>;
@@ -57,25 +58,33 @@ export default function Router() {
     <Suspense fallback={<Loading />}>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/consultorios" element={<Listings />} />
-        <Route path="/consultorios/:id" element={<ConsultoryDetail />} />
-        <Route path="/sobre" element={<About />} />
-        <Route path="/contato" element={<Contact />} />
+        <Route path="/clinics" element={<Listings />} />
+        <Route path="/clinics/:id" element={<ConsultoryDetail />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
 
-        <Route path="/entrar" element={<Login />} />
-        <Route path="/cadastro" element={<Register />} />
-        <Route path="/confirmar-cadastro" element={<ConfirmRegistration />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/confirm-registration" element={<ConfirmRegistration />} />
 
-        <Route path="/dashboard/locatario" element={<TenantDashboard />} />
+        <Route path="/dashboard/tenant" element={<TenantDashboard />} />
         <Route
-          path="/dashboard/locatario/buscar-consultorios"
+          path="/dashboard/tenant/search"
           element={<TenantConsultorySearchDashboard />}
         />
         <Route
-          path="/dashboard/proprietario"
+          path="/dashboard/owner"
           element={
             <OwnerOnlyRoute>
               <OwnerDashboard />
+            </OwnerOnlyRoute>
+          }
+        />
+        <Route
+          path="/dashboard/owner/rooms"
+          element={
+            <OwnerOnlyRoute>
+              <OwnerRooms />
             </OwnerOnlyRoute>
           }
         />
@@ -83,7 +92,7 @@ export default function Router() {
 
         <Route path="/profile" element={<Profile />} />
         <Route
-          path="/dashboard/proprietario/perfil"
+          path="/dashboard/owner/profile"
           element={
             <OwnerOnlyRoute>
               <ConsultoryProfile />

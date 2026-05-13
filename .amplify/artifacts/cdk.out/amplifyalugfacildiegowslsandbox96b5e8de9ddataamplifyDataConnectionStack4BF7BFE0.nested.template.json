@@ -12,7 +12,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "UserownedConsultoriesauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a10c5d36c29f7960b4d5c689bd7ee7ebafb341d31379392754b764114410e6e0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/16a7bf790c67b1a02165dd72585a4e2e7f79b0473f82fbbdd7d5caa532bdd114.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -155,7 +155,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Consultorybookingsauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/defbd77de0233172f40f285bc7bf676b26d1e4342aad001cce264647fe3f3fc0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/ac741271d28d6a43534a19d814922ea93c022c6ca65bfe92d66b5382b64f560e.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -715,6 +715,149 @@
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/consultoryReviewsResolver"
    }
   },
+  "Consultoryroomsauth0FunctionConsultoryroomsauth0FunctionAppSyncFunction4D98D95C": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "Consultoryroomsauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/b053fb1a38ff4eedce2c0f738d2a6ff48ff5474f9d00b931f11add1db0374f35.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/Consultoryroomsauth0Function/Consultoryroomsauth0Function.AppSyncFunction"
+   }
+  },
+  "ConsultoryRoomsDataResolverFnConsultoryRoomsDataResolverFnAppSyncFunction7A24480F": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomDataSource778B31CBName"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "ConsultoryRoomsDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/2086cbbc045cf741e07e916af05a2e941488bf9e9e97faca09032336ee418651.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/49e7a1f2fb4c809b82bed6b0242a2a3bcfa2c5276ebd2539ff330fee36f8fe18.vtl"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/ConsultoryRoomsDataResolverFn/ConsultoryRoomsDataResolverFn.AppSyncFunction"
+   }
+  },
+  "ConsultoryroomsResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "FieldName": "rooms",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "Consultoryroomsauth0FunctionConsultoryroomsauth0FunctionAppSyncFunction4D98D95C",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "ConsultoryRoomsDataResolverFnConsultoryRoomsDataResolverFnAppSyncFunction7A24480F",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Consultory\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"rooms\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomTable9501781DTableArn"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthunauthenticatedUserRoleA824F638Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Consultory"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/consultoryRoomsResolver"
+   }
+  },
   "Bookinginspectionsauth0FunctionBookinginspectionsauth0FunctionAppSyncFunctionC5F41D35": {
    "Type": "AWS::AppSync::FunctionConfiguration",
    "Properties": {
@@ -727,7 +870,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Bookinginspectionsauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e0f17dc94d94ccbe92c27e558837f117e7ab503d9ff0834fe1d1b65d7b2756e9.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/defbd77de0233172f40f285bc7bf676b26d1e4342aad001cce264647fe3f3fc0.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1156,7 +1299,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Bookingconsultoryauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a10c5d36c29f7960b4d5c689bd7ee7ebafb341d31379392754b764114410e6e0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/16a7bf790c67b1a02165dd72585a4e2e7f79b0473f82fbbdd7d5caa532bdd114.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1299,7 +1442,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Availabilityconsultoryauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a10c5d36c29f7960b4d5c689bd7ee7ebafb341d31379392754b764114410e6e0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/16a7bf790c67b1a02165dd72585a4e2e7f79b0473f82fbbdd7d5caa532bdd114.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1442,7 +1585,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Inspectionbookingauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/e0f17dc94d94ccbe92c27e558837f117e7ab503d9ff0834fe1d1b65d7b2756e9.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/ac741271d28d6a43534a19d814922ea93c022c6ca65bfe92d66b5382b64f560e.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1585,7 +1728,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Inspectionconsultoryauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a10c5d36c29f7960b4d5c689bd7ee7ebafb341d31379392754b764114410e6e0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/16a7bf790c67b1a02165dd72585a4e2e7f79b0473f82fbbdd7d5caa532bdd114.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1716,6 +1859,149 @@
     "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/inspectionConsultoryResolver"
    }
   },
+  "Roomconsultoryauth0FunctionRoomconsultoryauth0FunctionAppSyncFunction354D11F0": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPINONEDS40B301D3Name"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "Roomconsultoryauth0Function",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/16a7bf790c67b1a02165dd72585a4e2e7f79b0473f82fbbdd7d5caa532bdd114.vtl"
+    },
+    "ResponseMappingTemplate": "$util.toJson({})"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/Roomconsultoryauth0Function/Roomconsultoryauth0Function.AppSyncFunction"
+   }
+  },
+  "RoomConsultoryDataResolverFnRoomConsultoryDataResolverFnAppSyncFunction2E459115": {
+   "Type": "AWS::AppSync::FunctionConfiguration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "DataSourceName": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataConsultoryNestedStackConsultoryNestedStackResource200D517EOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataConsultoryConsultoryDataSourceA3868D54Name"
+    },
+    "FunctionVersion": "2018-05-29",
+    "Name": "RoomConsultoryDataResolverFn",
+    "RequestMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/3de741f7ba6a5feed7a0a1f70a248d53cd0d17459688d8f56212ffa121851797.vtl"
+    },
+    "ResponseMappingTemplateS3Location": {
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/dcb70e4856bc9a423e02b8b9e9c2ab3f71479784572d4c04a02d1f5b61a9f9ac.vtl"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/RoomConsultoryDataResolverFn/RoomConsultoryDataResolverFn.AppSyncFunction"
+   }
+  },
+  "RoomconsultoryResolver": {
+   "Type": "AWS::AppSync::Resolver",
+   "Properties": {
+    "ApiId": {
+     "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+    },
+    "FieldName": "consultory",
+    "Kind": "PIPELINE",
+    "PipelineConfig": {
+     "Functions": [
+      {
+       "Fn::GetAtt": [
+        "Roomconsultoryauth0FunctionRoomconsultoryauth0FunctionAppSyncFunction354D11F0",
+        "FunctionId"
+       ]
+      },
+      {
+       "Fn::GetAtt": [
+        "RoomConsultoryDataResolverFnRoomConsultoryDataResolverFnAppSyncFunction2E459115",
+        "FunctionId"
+       ]
+      }
+     ]
+    },
+    "RequestMappingTemplate": {
+     "Fn::Join": [
+      "",
+      [
+       "$util.qr($ctx.stash.put(\"typeName\", \"Room\"))\n$util.qr($ctx.stash.put(\"fieldName\", \"consultory\"))\n$util.qr($ctx.stash.put(\"conditions\", []))\n$util.qr($ctx.stash.put(\"metadata\", {}))\n$util.qr($ctx.stash.metadata.put(\"dataSourceType\", \"AMAZON_DYNAMODB\"))\n$util.qr($ctx.stash.metadata.put(\"apiId\", \"",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataGraphQLAPI921E5360ApiId"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"connectionAttributes\", {}))\n$util.qr($ctx.stash.put(\"tableName\", \"",
+       {
+        "Fn::Select": [
+         1,
+         {
+          "Fn::Split": [
+           "/",
+           {
+            "Fn::Select": [
+             5,
+             {
+              "Fn::Split": [
+               ":",
+               {
+                "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataConsultoryNestedStackConsultoryNestedStackResource200D517EOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataConsultoryConsultoryTable09FE0DC8TableArn"
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"authRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthauthenticatedUserRole24779CB9Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"unauthRole\", \"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":sts::",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":assumed-role/",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthunauthenticatedUserRoleA824F638Ref"
+       },
+       "/CognitoIdentityCredentials\"))\n$util.qr($ctx.stash.put(\"identityPoolId\", \"",
+       {
+        "Ref": "referencetoamplifyalugfacildiegowslsandbox96b5e8de9dauthNestedStackauthNestedStackResourceB6F42AA0Outputsamplifyalugfacildiegowslsandbox96b5e8de9dauthamplifyAuthIdentityPoolC305C130Ref"
+       },
+       "\"))\n$util.qr($ctx.stash.put(\"adminRoles\", []))\n$util.toJson({})"
+      ]
+     ]
+    },
+    "ResponseMappingTemplate": "$util.toJson($ctx.prev.result)",
+    "TypeName": "Room"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "amplify-alugfacil-diegowsl-sandbox-96b5e8de9d/data/amplifyData/ConnectionStack/roomConsultoryResolver"
+   }
+  },
   "Reviewbookingauth0FunctionReviewbookingauth0FunctionAppSyncFunction53E42864": {
    "Type": "AWS::AppSync::FunctionConfiguration",
    "Properties": {
@@ -1728,7 +2014,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Reviewbookingauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/defbd77de0233172f40f285bc7bf676b26d1e4342aad001cce264647fe3f3fc0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/ac741271d28d6a43534a19d814922ea93c022c6ca65bfe92d66b5382b64f560e.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -1871,7 +2157,7 @@
     "FunctionVersion": "2018-05-29",
     "Name": "Reviewconsultoryauth0Function",
     "RequestMappingTemplateS3Location": {
-     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/a10c5d36c29f7960b4d5c689bd7ee7ebafb341d31379392754b764114410e6e0.vtl"
+     "Fn::Sub": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}/16a7bf790c67b1a02165dd72585a4e2e7f79b0473f82fbbdd7d5caa532bdd114.vtl"
     },
     "ResponseMappingTemplate": "$util.toJson({})"
    },
@@ -2323,6 +2609,12 @@
    "Type": "String"
   },
   "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataReviewNestedStackReviewNestedStackResourceF469AC51Outputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataReviewReviewTable5B11A134TableArn": {
+   "Type": "String"
+  },
+  "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomDataSource778B31CBName": {
+   "Type": "String"
+  },
+  "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomNestedStackRoomNestedStackResourceCAE5428FOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataRoomRoomTable9501781DTableArn": {
    "Type": "String"
   },
   "referencetoamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataUserNestedStackUserNestedStackResource54D6914EOutputsamplifyalugfacildiegowslsandbox96b5e8de9ddataamplifyDataUserUserDataSourceD07EB6C3Name": {
